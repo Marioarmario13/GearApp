@@ -1,0 +1,27 @@
+{
+  "name": "gearhead",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Plataforma Gearhead — site, painel e app para entusiastas automotivos no Brasil.",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev:web": "npm run dev -w @gearhead/web",
+    "dev:mobile": "npm run start -w @gearhead/mobile",
+    "build:web": "npm run build -w @gearhead/web",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10"
+  }
+}
