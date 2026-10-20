@@ -27,7 +27,7 @@ export function LocationPicker({
   const [hint, setHint] = useState<string | null>(null);
 
   const markers = useMemo(
-    () => (point ? [{ id: "pin", ...point, label: "Seu estabelecimento", highlighted: true }] : []),
+    () => (point ? [{ id: "pin", ...point, label: "Local escolhido", highlighted: true }] : []),
     [point],
   );
 
@@ -57,11 +57,10 @@ export function LocationPicker({
     <form action={formAction} className="flex flex-col gap-3">
       <FormMessage error={hint ?? state.error} success={hint ? undefined : state.success} />
       <p className="text-sm text-muted">
-        Clique no mapa no ponto exato do estabelecimento. Ele aparece no Radar para quem busca por
-        perto.
+        Clique no mapa no ponto exato. Ele aparece no mapa para quem busca por perto.
       </p>
       <LazyMapView
-        ariaLabel="Mapa para posicionar o estabelecimento"
+        ariaLabel="Mapa para escolher o local"
         center={view}
         zoom={view.zoom}
         markers={markers}

@@ -1,6 +1,6 @@
 # Modelo de Dados — Gearhead
 
-> Status: `profiles` (Etapa 2), garagem (Etapa 3), parceiros (Etapa 4) e radar (Etapa 5) **implementados**; demais tabelas são rascunho conceitual. Cada tabela só entra no banco via migração versionada, na etapa em que for realmente necessária.
+> Status: `profiles` (Etapa 2), garagem (3), parceiros (4), radar (5) e eventos/benefícios (6) **implementados**; demais tabelas são rascunho conceitual. Cada tabela só entra no banco via migração versionada, na etapa em que for realmente necessária.
 
 ## Implementado
 
@@ -89,3 +89,15 @@ Grants: público lê colunas sem `review_note`/`reviewed_by`; dono insere/atuali
 - `businesses.location geography(Point, 4326)` (constraint: dentro da caixa aproximada do Brasil) + colunas geradas `latitude`/`longitude` (legíveis). Índice GiST parcial `businesses_location_gist` (`where status = 'approved'`).
 - `set_business_location(id, lat, lng)`: só o dono; `null` remove; arredonda para ~1 m; grava `business.location_changed` na auditoria.
 - `search_nearby_businesses(lat, lng, raio_km, tipo, especialidade, limite)`: pública (anon/autenticado), security definer com filtro `status = 'approved'`, raio 1–100 km, máximo de 50 resultados, ordenada por distância; devolve `distance_m` e `specialty_ids`.
+
+### Eventos e benefícios — `supabase/migrations/20261023000100_events_offers.sql`
+
+**`public.events`**: organizador (`auth.uid()`), parceiro anfitrião opcional (precisa ser do organizador e aprovado), `kind` (`meetup`, `exhibition`, `cruise`, `track_day`, `workshop`, `charity`, `other`), título, descrição, `starts_at`/`ends_at` (início futuro, fim após início, até 7 dias), local (nome, endereço, cidade, UF obrigatórios; `location` opcional com lat/lng geradas), `capacity` (1–10.000), `attendee_count` (gatilho), `status` (`scheduled`/`cancelled`/`removed`) e `status_note`. Máx. 10 eventos futuros por organizador. Evento encerrado não é editável.
+
+**`public.event_attendees`** (evento, usuário): inserção só por `rsvp_event()`; o usuário remove a própria presença. Leitura: o próprio, o organizador e admins.
+
+**`public.offers`**: parceiro, título, `discount_label`, descrição, regras, `starts_at`/`ends_at` (até 1 ano), `max_redemptions`, `per_user_limit` (1–10), `issued_count`, `status` (`active`/`paused`). Pública só se ativa, vigente e de parceiro aprovado. Máx. 20 vigentes por parceiro; não pode ser excluída depois de emitir cupons.
+
+**`public.coupons`**: oferta, usuário, `code` (8 caracteres sem ambíguos, único), `status` (`issued`/`redeemed`/`cancelled`), `expires_at` = fim da oferta. Sem escrita direta: `claim_offer()`, `redeem_coupon()` (dono do parceiro), `cancel_coupon()` (cliente, só emitido). Leitura: cliente, dono do parceiro e admin.
+
+**RPCs**: `rsvp_event`, `cancel_event`, `remove_event` (admin, auditado), `set_event_location`, `get_event_attendees`, `claim_offer`, `cancel_coupon`, `redeem_coupon`.

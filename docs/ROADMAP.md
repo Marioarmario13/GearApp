@@ -68,9 +68,13 @@ Legenda: ✅ concluído · 🟡 em andamento · ⬜ pendente
 
 **Portão:** filtros funcionam; buscas usam consultas limitadas e indexadas.
 
-## Etapa 6 — Eventos e benefícios ⬜
+## Etapa 6 — Eventos e benefícios ✅
 
-- [ ] `events`, `event_attendees`, `offers`, cupons simples com validade e estado de resgate.
+- [x] `events` (datas validadas no servidor, até 7 dias, capacidade, local no mapa, cancelamento pelo organizador, remoção auditada por admin), `event_attendees` (RPC com bloqueio de vaga), `offers` e `coupons` (emissão/resgate/cancelamento por RPC, limites por pessoa e total, vencimento).
+- [x] Web: `/eventos`, `/eventos/novo`, `/eventos/[id]` (presença, painel do organizador, moderação), `/eventos/meus`, `/ofertas`, `/ofertas/[id]`, `/meus-cupons`; ofertas e validação de cupom em `/meus-parceiros/[id]`.
+- [x] Mobile: eventos (lista, detalhe, presença, mapa), ofertas (lista, detalhe, pegar cupom) e meus cupons.
+- [x] 47 testes pgTAP novos (191 no total) + integração repetível + fluxo validado no navegador.
+- Pendente: notificações (lembrete de evento, cupom perto de vencer) — exigem provedor de push/e-mail; criação de eventos e gestão de ofertas pelo app (hoje no site).
 
 **Portão:** datas, regras e estados de resgate validados no servidor.
 

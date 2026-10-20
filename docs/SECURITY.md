@@ -48,6 +48,14 @@
 - Busca por raio limitada no servidor (raio ≤100 km, ≤50 resultados) e só com parceiros aprovados.
 - Mapa: atribuição OpenStreetMap/OpenFreeMap sempre visível; no app, MapLibre por CDN com hash SRI; a WebView do mapa roda sem geolocalização e em modo anônimo.
 
+## Controles implementados (Etapa 6 — eventos e benefícios)
+
+- Datas, capacidade, limites de cupons e estados de resgate validados no servidor, com bloqueio de linha contra corridas (duas pessoas pegando a última vaga ou o último cupom).
+- Lista de confirmados é privada (organizador/admin); o público vê só o total.
+- Resgate de cupom só pelo dono do parceiro; resposta idêntica para código inexistente ou de outro parceiro (evita enumeração). Códigos sem caracteres ambíguos.
+- Remoção de evento por moderação exige motivo e fica auditada. Avisos de segurança no cadastro de passeios e track days; velocidade só em autódromo.
+- Sem carteira financeira nem pagamentos: o cupom é apenas um código de desconto concedido pelo estabelecimento.
+
 ### Pendências conhecidas
 
 - Confirmação de e-mail está desligada **apenas no ambiente local** (`enable_confirmations = false`); ligar em qualquer ambiente hospedado.

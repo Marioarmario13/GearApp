@@ -1,6 +1,6 @@
 # Arquitetura — Gearhead
 
-> Status: Etapa 5 (radar). Atualizar sempre que a implementação mudar.
+> Status: Etapa 6 (eventos e benefícios). Atualizar sempre que a implementação mudar.
 
 ## Visão geral
 
@@ -106,3 +106,10 @@ Dono ─► pin no mapa ─► set_business_location() ─► businesses.locatio
 - Lógica e tipos em `packages/shared/src/radar.ts` (`searchNearby`, `setBusinessLocation`, `coarsenCoordinate`, `formatDistance`).
 - Web: `src/components/map/` (`MapView` + `LazyMapView`), `/radar`, mapa na página do parceiro e seletor de pin em `/meus-parceiros/[id]`.
 - Mobile: `src/screens/RadarScreen.tsx`, `src/components/MapWebView.tsx`, `src/lib/map-html.ts`, `src/lib/location.ts`.
+
+## Eventos e benefícios (Etapa 6)
+
+- `packages/shared/src/events.ts` e `offers.ts`: schemas (datas em horário de Brasília) e acesso a dados.
+- Regras críticas em RPCs `security definer` com `select … for update` (capacidade de evento, limites de cupom).
+- Web: Server Actions em `src/app/actions/events.ts` e `offers.ts`; seletor de local reutilizável em `src/components/map/location-picker.tsx`.
+- Mobile: `src/screens/EventsScreens.tsx` e `OffersScreens.tsx` (criação de eventos e gestão de ofertas ficam no site).

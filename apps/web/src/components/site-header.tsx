@@ -12,7 +12,7 @@ export function SiteHeader() {
         aria-label="Principal"
         className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-3 sm:px-8"
       >
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1">
           <Link href="/" className="mr-2 text-lg font-bold tracking-tight">
             {APP_NAME}
           </Link>
@@ -21,6 +21,12 @@ export function SiteHeader() {
           </Link>
           <Link href="/radar" className={linkClass}>
             Radar
+          </Link>
+          <Link href="/eventos" className={linkClass}>
+            Eventos
+          </Link>
+          <Link href="/ofertas" className={linkClass}>
+            Ofertas
           </Link>
         </div>
         {/* A sessão é lida por requisição; o restante do cabeçalho é estático. */}

@@ -5,7 +5,9 @@ import {
   getBusinessReview,
   getPrivateCredentials,
   isExpired,
+  listBusinessOffers,
   listSpecialties,
+  offerRemaining,
   signDocumentUrls,
 } from "@gearhead/shared";
 import type { Metadata } from "next";
@@ -23,9 +25,16 @@ import { BusinessStatusBadge, CredentialStatusBadge } from "@/components/partner
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { BusinessForm } from "../business-form";
+import {
+  createOfferAction,
+  deleteOfferAction,
+  redeemCouponAction,
+  setOfferStatusAction,
+} from "@/app/actions/offers";
 import { setBusinessLocationAction } from "@/app/actions/radar";
 import { CredentialUploader } from "./credential-uploader";
-import { LocationPicker } from "./location-picker";
+import { OfferForm, RedeemForm } from "./offers-manager";
+import { LocationPicker } from "@/components/map/location-picker";
 
 export const metadata: Metadata = { title: "Estabelecimento — Gearhead" };
 
@@ -57,10 +66,11 @@ async function MyBusiness({ params }: { params: Promise<{ id: string }> }) {
   const business = await getBusiness(supabase, id);
   if (!business || business.owner_id !== user.id) notFound();
 
-  const [review, credentials, specialties] = await Promise.all([
+  const [review, credentials, specialties, offers] = await Promise.all([
     getBusinessReview(supabase, id),
     getPrivateCredentials(supabase, id),
     listSpecialties(supabase),
+    listBusinessOffers(supabase, id),
   ]);
   const urls = await signDocumentUrls(
     supabase,
@@ -153,6 +163,81 @@ async function MyBusiness({ params }: { params: Promise<{ id: string }> }) {
           hasRegistration={hasRegistration}
         />
       </section>
+
+      {business.status === "approved" && (
+        <section
+          aria-labelledby="ofertas"
+          className="flex flex-col gap-4 rounded-2xl border border-line bg-surface p-6"
+        >
+          <h2 id="ofertas" className="text-xl font-semibold">
+            Ofertas e cupons
+          </h2>
+          <div className="flex flex-col gap-2 rounded-xl border border-line p-4">
+            <h3 className="font-semibold">Validar cupom no balcão</h3>
+            <RedeemForm action={redeemCouponAction.bind(null, business.id)} />
+          </div>
+          {offers.length > 0 && (
+            <ul className="flex flex-col gap-2">
+              {offers.map((o) => {
+                const remaining = offerRemaining(o);
+                const expired = new Date(o.ends_at) <= new Date();
+                return (
+                  <li
+                    key={o.id}
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line p-4"
+                  >
+                    <div>
+                      <p className="font-medium">
+                        {o.discount_label} · {o.title}
+                      </p>
+                      <p className="text-sm text-muted">
+                        {expired ? "Encerrada" : o.status === "active" ? "Ativa" : "Pausada"} ·{" "}
+                        {o.issued_count} cupom(ns) emitido(s)
+                        {remaining !== null && ` · ${remaining} restante(s)`}
+                      </p>
+                    </div>
+                    {!expired && (
+                      <div className="flex gap-3 text-sm">
+                        <form
+                          action={setOfferStatusAction.bind(
+                            null,
+                            business.id,
+                            o.id,
+                            o.status === "active" ? "paused" : "active",
+                          )}
+                        >
+                          <button type="submit" className="text-accent hover:underline">
+                            {o.status === "active" ? "Pausar" : "Reativar"}
+                          </button>
+                        </form>
+                        {o.issued_count === 0 && (
+                          <form
+                            action={async () => {
+                              "use server";
+                              await deleteOfferAction(business.id, o.id);
+                            }}
+                          >
+                            <button
+                              type="submit"
+                              className="text-red-600 hover:underline dark:text-red-400"
+                            >
+                              Excluir
+                            </button>
+                          </form>
+                        )}
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          <div className="flex flex-col gap-2 rounded-xl border border-line p-4">
+            <h3 className="font-semibold">Nova oferta</h3>
+            <OfferForm action={createOfferAction.bind(null, business.id)} />
+          </div>
+        </section>
+      )}
 
       <section aria-labelledby="mapa" className="rounded-2xl border border-line bg-surface p-6">
         <h2 id="mapa" className="mb-4 text-xl font-semibold">

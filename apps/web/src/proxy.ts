@@ -2,7 +2,15 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseEnv } from "@/lib/env";
 
-const PROTECTED_PREFIXES = ["/conta", "/garagem", "/meus-parceiros", "/admin"];
+const PROTECTED_PREFIXES = [
+  "/conta",
+  "/garagem",
+  "/meus-parceiros",
+  "/admin",
+  "/eventos/novo",
+  "/eventos/meus",
+  "/meus-cupons",
+];
 const GUEST_ONLY = ["/entrar", "/cadastro"];
 
 /**

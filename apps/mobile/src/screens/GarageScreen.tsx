@@ -67,6 +67,12 @@ export function GarageScreen() {
           <Link href="/parceiros" style={styles.link} accessibilityRole="link">
             Parceiros
           </Link>
+          <Link href="/eventos" style={styles.link} accessibilityRole="link">
+            Eventos
+          </Link>
+          <Link href="/ofertas" style={styles.link} accessibilityRole="link">
+            Ofertas
+          </Link>
           <Link href="/conta" style={styles.link} accessibilityRole="link">
             Minha conta
           </Link>
@@ -126,7 +132,7 @@ export function GarageScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, gap: 12 },
   toolbar: { gap: 10 },
-  links: { flexDirection: "row", justifyContent: "space-around" },
+  links: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-around", rowGap: 4 },
   link: { color: colors.accent, textAlign: "center", fontWeight: "500", paddingVertical: 4 },
   empty: { alignItems: "center", gap: 4, paddingVertical: 40 },
   emptyTitle: { color: colors.text, fontSize: 18, fontWeight: "600" },
