@@ -99,3 +99,22 @@ update public.businesses
 update public.businesses
    set location = extensions.st_setsrid(extensions.st_makepoint(-49.2900, -25.4400), 4326)::extensions.geography
  where id = '33333333-3333-4333-8333-333333333332' and location is null;
+
+-- Evento e oferta fictícios (Etapa 6). Datas relativas a quando o seed roda.
+insert into public.events (id, organizer_id, business_id, kind, title, description, starts_at, ends_at,
+                           venue_name, city, state, capacity)
+values ('55555555-5555-4555-8555-555555555551', '22222222-2222-4222-8222-222222222222',
+        '33333333-3333-4333-8333-333333333331', 'meetup', 'Encontro de Clássicos (fictício)',
+        'Encontro fictício para desenvolvimento. Estacionamento, sem manobras arriscadas.',
+        date_trunc('day', now()) + interval '14 days 9 hours', date_trunc('day', now()) + interval '14 days 13 hours',
+        'Estacionamento Exemplo', 'Curitiba', 'PR', 50)
+on conflict (id) do nothing;
+update public.events
+   set location = extensions.st_setsrid(extensions.st_makepoint(-49.2700, -25.4300), 4326)::extensions.geography
+ where id = '55555555-5555-4555-8555-555555555551' and location is null;
+
+insert into public.offers (id, business_id, title, description, discount_label, terms, ends_at, max_redemptions, per_user_limit)
+values ('66666666-6666-4666-8666-666666666661', '33333333-3333-4333-8333-333333333331',
+        'Revisão de injeção com desconto (fictício)', 'Oferta fictícia para desenvolvimento.',
+        '15% OFF', 'Válido de segunda a sexta. Não cumulativo.', now() + interval '60 days', 100, 1)
+on conflict (id) do nothing;

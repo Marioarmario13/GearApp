@@ -170,6 +170,55 @@ export type Database = {
           },
         ];
       };
+      coupons: {
+        Row: {
+          code: string;
+          expires_at: string;
+          id: string;
+          issued_at: string;
+          offer_id: string;
+          redeemed_at: string | null;
+          status: Database["public"]["Enums"]["coupon_status"];
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          code: string;
+          expires_at: string;
+          id?: string;
+          issued_at?: string;
+          offer_id: string;
+          redeemed_at?: string | null;
+          status?: Database["public"]["Enums"]["coupon_status"];
+          user_id: string;
+        };
+        Update: {
+          code?: string;
+          expires_at?: string;
+          id?: string;
+          issued_at?: string;
+          offer_id?: string;
+          redeemed_at?: string | null;
+          status?: Database["public"]["Enums"]["coupon_status"];
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "coupons_offer_id_fkey";
+            columns: ["offer_id"];
+            isOneToOne: false;
+            referencedRelation: "offers";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "coupons_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       credentials: {
         Row: {
           business_id: string;
@@ -240,6 +289,194 @@ export type Database = {
             columns: ["specialty_id"];
             isOneToOne: false;
             referencedRelation: "specialties";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      event_attendees: {
+        Row: {
+          created_at: string;
+          event_id: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          event_id: string;
+          user_id?: string;
+        };
+        Update: {
+          created_at?: string;
+          event_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_attendees_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_attendees_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      events: {
+        Row: {
+          attendee_count: number;
+          business_id: string | null;
+          capacity: number | null;
+          city: string;
+          created_at: string;
+          description: string | null;
+          district: string | null;
+          ends_at: string;
+          id: string;
+          kind: Database["public"]["Enums"]["event_kind"];
+          latitude: number | null;
+          location: unknown;
+          longitude: number | null;
+          organizer_id: string;
+          starts_at: string;
+          state: string;
+          status: Database["public"]["Enums"]["event_status"];
+          status_note: string | null;
+          street: string | null;
+          street_number: string | null;
+          title: string;
+          updated_at: string;
+          venue_name: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          attendee_count?: number;
+          business_id?: string | null;
+          capacity?: number | null;
+          city: string;
+          created_at?: string;
+          description?: string | null;
+          district?: string | null;
+          ends_at: string;
+          id?: string;
+          kind: Database["public"]["Enums"]["event_kind"];
+          latitude?: never;
+          location?: unknown;
+          longitude?: never;
+          organizer_id?: string;
+          starts_at: string;
+          state: string;
+          status?: Database["public"]["Enums"]["event_status"];
+          status_note?: string | null;
+          street?: string | null;
+          street_number?: string | null;
+          title: string;
+          updated_at?: string;
+          venue_name: string;
+        };
+        Update: {
+          attendee_count?: number;
+          business_id?: string | null;
+          capacity?: number | null;
+          city?: string;
+          created_at?: string;
+          description?: string | null;
+          district?: string | null;
+          ends_at?: string;
+          id?: string;
+          kind?: Database["public"]["Enums"]["event_kind"];
+          latitude?: never;
+          location?: unknown;
+          longitude?: never;
+          organizer_id?: string;
+          starts_at?: string;
+          state?: string;
+          status?: Database["public"]["Enums"]["event_status"];
+          status_note?: string | null;
+          street?: string | null;
+          street_number?: string | null;
+          title?: string;
+          updated_at?: string;
+          venue_name?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "events_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "events_organizer_id_fkey";
+            columns: ["organizer_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      offers: {
+        Row: {
+          business_id: string;
+          created_at: string;
+          description: string | null;
+          discount_label: string;
+          ends_at: string;
+          id: string;
+          issued_count: number;
+          max_redemptions: number | null;
+          per_user_limit: number;
+          starts_at: string;
+          status: Database["public"]["Enums"]["offer_status"];
+          terms: string | null;
+          title: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          created_at?: string;
+          description?: string | null;
+          discount_label: string;
+          ends_at: string;
+          id?: string;
+          issued_count?: number;
+          max_redemptions?: number | null;
+          per_user_limit?: number;
+          starts_at?: string;
+          status?: Database["public"]["Enums"]["offer_status"];
+          terms?: string | null;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          business_id?: string;
+          created_at?: string;
+          description?: string | null;
+          discount_label?: string;
+          ends_at?: string;
+          id?: string;
+          issued_count?: number;
+          max_redemptions?: number | null;
+          per_user_limit?: number;
+          starts_at?: string;
+          status?: Database["public"]["Enums"]["offer_status"];
+          terms?: string | null;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "offers_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
             referencedColumns: ["id"];
           },
         ];
@@ -407,6 +644,16 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      cancel_coupon: { Args: { p_coupon_id: string }; Returns: undefined };
+      cancel_event: { Args: { p_event_id: string; p_note?: string }; Returns: undefined };
+      claim_offer: {
+        Args: { p_offer_id: string };
+        Returns: {
+          code: string;
+          coupon_id: string;
+          expires_at: string;
+        }[];
+      };
       current_user_role: {
         Args: Record<PropertyKey, never>;
         Returns: Database["public"]["Enums"]["app_role"];
@@ -436,6 +683,25 @@ export type Database = {
           status: Database["public"]["Enums"]["business_status"];
         }[];
       };
+      get_event_attendees: {
+        Args: { p_event_id: string };
+        Returns: {
+          confirmed_at: string;
+          display_name: string;
+          user_id: string;
+          username: string;
+        }[];
+      };
+      redeem_coupon: {
+        Args: { p_code: string };
+        Returns: {
+          coupon_id: string;
+          discount_label: string;
+          offer_title: string;
+          redeemed_at: string;
+        }[];
+      };
+      remove_event: { Args: { p_event_id: string; p_note: string }; Returns: undefined };
       review_business: {
         Args: {
           p_business_id: string;
@@ -452,6 +718,7 @@ export type Database = {
         };
         Returns: undefined;
       };
+      rsvp_event: { Args: { p_event_id: string }; Returns: number };
       search_nearby_businesses: {
         Args: {
           p_kind?: Database["public"]["Enums"]["business_kind"];
@@ -477,6 +744,10 @@ export type Database = {
         Args: { p_business_id: string; p_latitude?: number; p_longitude?: number };
         Returns: undefined;
       };
+      set_event_location: {
+        Args: { p_event_id: string; p_latitude?: number; p_longitude?: number };
+        Returns: undefined;
+      };
       set_user_role: {
         Args: { new_role: Database["public"]["Enums"]["app_role"]; target_user_id: string };
         Returns: undefined;
@@ -487,8 +758,13 @@ export type Database = {
       business_kind:
         "workshop" | "mechanic" | "tuner" | "gas_station" | "parts_store" | "detailing";
       business_status: "pending" | "approved" | "rejected" | "suspended";
+      coupon_status: "issued" | "redeemed" | "cancelled";
       credential_status: "pending" | "approved" | "rejected";
       credential_type: "business_registration" | "certification" | "training" | "other";
+      event_kind:
+        "meetup" | "exhibition" | "cruise" | "track_day" | "workshop" | "charity" | "other";
+      event_status: "scheduled" | "cancelled" | "removed";
+      offer_status: "active" | "paused";
       vehicle_visibility: "public" | "private";
     };
     CompositeTypes: {
@@ -604,8 +880,12 @@ export const Constants = {
       app_role: ["user", "admin"],
       business_kind: ["workshop", "mechanic", "tuner", "gas_station", "parts_store", "detailing"],
       business_status: ["pending", "approved", "rejected", "suspended"],
+      coupon_status: ["issued", "redeemed", "cancelled"],
       credential_status: ["pending", "approved", "rejected"],
       credential_type: ["business_registration", "certification", "training", "other"],
+      event_kind: ["meetup", "exhibition", "cruise", "track_day", "workshop", "charity", "other"],
+      event_status: ["scheduled", "cancelled", "removed"],
+      offer_status: ["active", "paused"],
       vehicle_visibility: ["public", "private"],
     },
   },
