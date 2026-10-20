@@ -60,9 +60,14 @@ export function GarageScreen() {
     <View style={styles.container}>
       <View style={styles.toolbar}>
         <Button onPress={() => router.push("/veiculo/novo")}>Adicionar veículo</Button>
-        <Link href="/conta" style={styles.link} accessibilityRole="link">
-          Minha conta
-        </Link>
+        <View style={styles.links}>
+          <Link href="/parceiros" style={styles.link} accessibilityRole="link">
+            Parceiros verificados
+          </Link>
+          <Link href="/conta" style={styles.link} accessibilityRole="link">
+            Minha conta
+          </Link>
+        </View>
       </View>
       <Message error={error} />
       {!state && !error ? (
@@ -118,6 +123,7 @@ export function GarageScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, gap: 12 },
   toolbar: { gap: 10 },
+  links: { flexDirection: "row", justifyContent: "space-around" },
   link: { color: colors.accent, textAlign: "center", fontWeight: "500", paddingVertical: 4 },
   empty: { alignItems: "center", gap: 4, paddingVertical: 40 },
   emptyTitle: { color: colors.text, fontSize: 18, fontWeight: "600" },

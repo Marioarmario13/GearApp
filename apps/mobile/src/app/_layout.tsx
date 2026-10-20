@@ -30,6 +30,8 @@ function RootNavigator() {
         <Stack.Screen name="conta" options={{ title: "Minha conta" }} />
         <Stack.Screen name="veiculo/novo" options={{ title: "Novo veículo" }} />
         <Stack.Screen name="veiculo/[id]" options={{ title: "Veículo" }} />
+        <Stack.Screen name="parceiros/index" options={{ title: "Parceiros verificados" }} />
+        <Stack.Screen name="parceiros/[id]" options={{ title: "Parceiro" }} />
       </Stack.Protected>
       <Stack.Protected guard={!session}>
         <Stack.Screen name="entrar" options={{ headerShown: false }} />

@@ -1,6 +1,6 @@
 # Arquitetura — Gearhead
 
-> Status: Etapa 3 (garagem). Atualizar sempre que a implementação mudar.
+> Status: Etapa 4 (parceiros e certificações). Atualizar sempre que a implementação mudar.
 
 ## Visão geral
 
@@ -79,3 +79,16 @@ App mobile ──► supabase-js (sessão em expo-sqlite/localStorage) → mesma
 - Fotos: o web envia o arquivo para uma Server Action, que faz o upload com a sessão do usuário; o mobile escolhe na galeria, converte para JPEG e envia direto ao Storage. Exibição por URLs assinadas.
 - O mobile passou a usar **Expo Router** com `Stack.Protected` (guarda de navegação; dados protegidos pela RLS).
 - Testes em camadas: pgTAP (RLS/Storage), integração do shared contra o Supabase local (`npm run test:integration`, também no CI), unitários (Vitest/Jest) e verificação manual no navegador.
+
+## Parceiros e conferência (Etapa 4)
+
+```
+Dono ──► /meus-parceiros ──► businesses (pending) + credentials (pending) + arquivo no bucket privado
+Admin ─► /admin ──► review_credential() ──► review_business() ──► audit_logs
+                         (exige registro conferido para aprovar)
+Público ► /parceiros (site) e app ──► só businesses approved + credentials approved (RLS)
+```
+
+- Camada de dados em `packages/shared/src/partner-data.ts`; base comum (erros, URLs assinadas) em `data-core.ts`.
+- Regras críticas ficam no banco (triggers e RPCs `security definer`); a UI só reflete. Erros de regra usam SQLSTATE `GH001` com mensagem pt-BR.
+- Mobile: diretório e detalhe somente leitura; cadastro e conferência pelo site.

@@ -16,8 +16,8 @@ import {
   updateVehicle,
   uploadVehiclePhoto,
   VEHICLE_PHOTOS_BUCKET,
-  type GearheadClient,
 } from "./garage-data";
+import type { GearheadClient } from "./data-core";
 import { vehicleInputSchema } from "./vehicle";
 
 const url = process.env.SUPABASE_URL;

@@ -1,6 +1,6 @@
 import "server-only";
 import type { AppRole, PublicProfile } from "@gearhead/shared";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 export interface CurrentUser {
@@ -37,6 +37,16 @@ export async function getMyProfile(userId: string): Promise<PublicProfile | null
     .maybeSingle<PublicProfile>();
   if (error) throw new Error(`Falha ao carregar perfil: ${error.message}`);
   return data;
+}
+
+/**
+ * Exige administrador. Para não revelar que a rota existe, não-admins recebem 404.
+ * As RPCs/policies do banco verificam o papel de novo em cada operação.
+ */
+export async function requireAdmin(): Promise<CurrentUser> {
+  const user = await requireUser();
+  if ((await getMyRole()) !== "admin") notFound();
+  return user;
 }
 
 export async function getMyRole(): Promise<AppRole | null> {

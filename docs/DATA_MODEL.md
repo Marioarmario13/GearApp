@@ -1,6 +1,6 @@
 # Modelo de Dados — Gearhead
 
-> Status: `profiles` (Etapa 2) e garagem (Etapa 3) **implementadas**; demais tabelas são rascunho conceitual. Cada tabela só entra no banco via migração versionada, na etapa em que for realmente necessária.
+> Status: `profiles` (Etapa 2), garagem (Etapa 3) e parceiros (Etapa 4) **implementados**; demais tabelas são rascunho conceitual. Cada tabela só entra no banco via migração versionada, na etapa em que for realmente necessária.
 
 ## Implementado
 
@@ -24,28 +24,28 @@
 
 ## Entidades previstas
 
-| Tabela                    | Etapa                | Descrição                                                                                                | Notas de segurança                                                            |
-| ------------------------- | -------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| `profiles`                | 2                    | 1:1 com `auth.users`; apelido, cidade, avatar, `role` (`user`/`admin`).                                  | Usuário edita só o próprio perfil; `role` alterável apenas por admin/serviço. |
-| `vehicles`                | 3                    | Veículos do usuário: marca, modelo, ano, apelido, `visibility`.                                          | Dono faz CRUD; público vê só `visibility = 'public'`.                         |
-| `vehicle_photos`          | 3                    | Referências a objetos no Storage.                                                                        | Bucket com política por dono; limite de tamanho/MIME.                         |
-| `businesses`              | 4                    | Estabelecimentos/profissionais; `location geography(Point)`; `status` (`pending`/`approved`/`rejected`). | Dono não altera `status`/`verified_at`. Índice GiST em `location`.            |
-| `specialties`             | 4                    | Catálogo (ex.: injeção eletrônica, suspensão, funilaria).                                                | Leitura pública; escrita admin.                                               |
-| `business_specialties`    | 4                    | N:N.                                                                                                     | —                                                                             |
-| `credentials`             | 4                    | Documentos enviados para verificação.                                                                    | Bucket privado; só dono e admin leem.                                         |
-| `events`                  | 6                    | Eventos com data/hora, local, organizador.                                                               | Constraint `ends_at > starts_at`.                                             |
-| `event_attendees`         | 6                    | Presença/confirmação.                                                                                    | Único por (evento, usuário).                                                  |
-| `offers`                  | 6                    | Ofertas/cupons de parceiros, validade.                                                                   | Resgate validado no servidor.                                                 |
-| `offer_redemptions`       | 6                    | Estado de resgate.                                                                                       | Único conforme regra da oferta.                                               |
-| `reviews`                 | 7                    | Avaliações de estabelecimentos.                                                                          | Uma por usuário/estabelecimento.                                              |
-| `friendships`             | 7                    | Pedidos e amizades.                                                                                      | —                                                                             |
-| `blocks`                  | 7                    | Bloqueios.                                                                                               | Aplicados em políticas RLS de leitura cruzada.                                |
-| `reports`                 | 7                    | Denúncias.                                                                                               | Só admin lê todas.                                                            |
-| `audit_logs`              | 7                    | Ações administrativas.                                                                                   | Append-only.                                                                  |
-| `location_sessions`       | 8                    | Sessão de compartilhamento: finalidade, destinatários, `expires_at`, `revoked_at`.                       | Coordenadas exatas só para destinatários; expiração automática.               |
-| `ephemeral_presence`      | 8                    | Presença aproximada (geohash grosseiro), TTL curto.                                                      | Sem histórico permanente.                                                     |
-| `challenges`, `check_ins` | pós-MVP              | Navegação, comboio, checkpoints, quiz.                                                                   | Nunca velocidade em via pública.                                              |
-| `notifications`           | conforme necessidade | —                                                                                                        | —                                                                             |
+| Tabela                    | Etapa                | Descrição                                                                          | Notas de segurança                                                            |
+| ------------------------- | -------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `profiles`                | 2                    | 1:1 com `auth.users`; apelido, cidade, avatar, `role` (`user`/`admin`).            | Usuário edita só o próprio perfil; `role` alterável apenas por admin/serviço. |
+| `vehicles`                | 3                    | Veículos do usuário: marca, modelo, ano, apelido, `visibility`.                    | Dono faz CRUD; público vê só `visibility = 'public'`.                         |
+| `vehicle_photos`          | 3                    | Referências a objetos no Storage.                                                  | Bucket com política por dono; limite de tamanho/MIME.                         |
+| `businesses`              | 4 (+5 localização)   | Implementada (ver abaixo). `location geography(Point)` entra na Etapa 5.           | Índice GiST em `location` na Etapa 5.                                         |
+| `specialties`             | 4                    | Catálogo (ex.: injeção eletrônica, suspensão, funilaria).                          | Leitura pública; escrita admin.                                               |
+| `business_specialties`    | 4                    | N:N.                                                                               | —                                                                             |
+| `credentials`             | 4                    | Documentos enviados para verificação.                                              | Bucket privado; só dono e admin leem.                                         |
+| `events`                  | 6                    | Eventos com data/hora, local, organizador.                                         | Constraint `ends_at > starts_at`.                                             |
+| `event_attendees`         | 6                    | Presença/confirmação.                                                              | Único por (evento, usuário).                                                  |
+| `offers`                  | 6                    | Ofertas/cupons de parceiros, validade.                                             | Resgate validado no servidor.                                                 |
+| `offer_redemptions`       | 6                    | Estado de resgate.                                                                 | Único conforme regra da oferta.                                               |
+| `reviews`                 | 7                    | Avaliações de estabelecimentos.                                                    | Uma por usuário/estabelecimento.                                              |
+| `friendships`             | 7                    | Pedidos e amizades.                                                                | —                                                                             |
+| `blocks`                  | 7                    | Bloqueios.                                                                         | Aplicados em políticas RLS de leitura cruzada.                                |
+| `reports`                 | 7                    | Denúncias.                                                                         | Só admin lê todas.                                                            |
+| `audit_logs`              | 4 (antecipada)       | Implementada (ver abaixo).                                                         | Append-only.                                                                  |
+| `location_sessions`       | 8                    | Sessão de compartilhamento: finalidade, destinatários, `expires_at`, `revoked_at`. | Coordenadas exatas só para destinatários; expiração automática.               |
+| `ephemeral_presence`      | 8                    | Presença aproximada (geohash grosseiro), TTL curto.                                | Sem histórico permanente.                                                     |
+| `challenges`, `check_ins` | pós-MVP              | Navegação, comboio, checkpoints, quiz.                                             | Nunca velocidade em via pública.                                              |
+| `notifications`           | conforme necessidade | —                                                                                  | —                                                                             |
 
 ## Convenções
 
@@ -67,3 +67,18 @@ Grants: SELECT colunas; INSERT/UPDATE só `make, model, year, nickname, visibili
 **Storage `vehicle-photos`**: privado, 5 MB, `image/jpeg|png|webp`. Upload só em `<auth.uid()>/<veículo próprio>/`; leitura pelo dono ou de fotos registradas de veículos públicos; exclusão só na própria pasta.
 
 Helpers (`private`): `owns_vehicle`, `can_view_vehicle`, `owns_vehicle_folder` (valida o caminho sem erro de cast), `validate_vehicle`, `validate_vehicle_photo`.
+
+### Parceiros — `supabase/migrations/20261021000100_partners.sql`
+
+**`public.businesses`**: `id` · `owner_id` (default `auth.uid()`) · `kind` (`workshop`, `mechanic`, `tuner`, `gas_station`, `parts_store`, `detailing`) · `name` (2–80) · `description` (≤1000) · `phone` (10–11 dígitos) · `phone_is_whatsapp` · `email` · `website` (http/https) · `street`, `street_number`, `district` · `city`, `state` (UF) obrigatórios · `postal_code` (8 dígitos) · `status` (`pending`/`approved`/`rejected`/`suspended`) · `review_note`, `reviewed_by`, `reviewed_at` · timestamps.
+Grants: público lê colunas sem `review_note`/`reviewed_by`; dono insere/atualiza só dados cadastrais. Policies: anônimo vê `approved`; autenticado vê `approved`, os próprios e (admin) todos. Triggers: força `pending` na criação; máx. 3 por usuário; nome/tipo alterado em aprovado → `pending` + auditoria.
+
+**`public.specialties`**: catálogo (`id` slug, `name`, `sort`), leitura pública, mantido por migração. **`public.business_specialties`**: N:N, máx. 15 por parceiro, visível quando o parceiro é visível.
+
+**`public.credentials`**: `business_id` · `type` (`business_registration`, `certification`, `training`, `other`) · `title` · `issuer` · `specialty_id` · `issued_on`/`expires_on` · `document_path` (`<owner>/<business>/<arquivo>.(pdf|jpg|jpeg|png|webp)`) · `status` (`pending`/`approved`/`rejected`) · revisão. Público vê só aprovadas de parceiros visíveis, sem `document_path`/`review_note`. Sem UPDATE para clientes (trocar = excluir e reenviar). Máx. 20 por parceiro.
+
+**`public.audit_logs`**: `actor_id`, `action`, `entity_type`, `entity_id`, `details` jsonb, `created_at`. Sem grants de escrita; inserção só por `private.audit()` (security definer). Leitura só admin.
+
+**RPCs**: `get_business_review(id)` e `get_business_credentials(id)` (dono/admin); `review_credential(id, decisão, nota)` e `review_business(id, decisão, nota)` (admin; motivo obrigatório para recusar/suspender; aprovar exige registro conferido; recusar o registro de um aprovado o devolve para `pending`).
+
+**Storage `business-documents`**: privado, 10 MB, PDF/JPG/PNG/WebP. Upload na pasta do próprio parceiro; leitura dono ou admin; exclusão pelo dono só de arquivos sem credencial aprovada (`private.is_approved_document`).

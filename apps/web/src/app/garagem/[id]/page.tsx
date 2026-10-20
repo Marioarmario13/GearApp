@@ -12,7 +12,8 @@ import {
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { VehicleForm } from "../vehicle-form";
-import { DeleteVehicleButton, PhotoUploader } from "./vehicle-controls";
+import { ConfirmActionButton } from "@/components/confirm-action-button";
+import { PhotoUploader } from "./vehicle-controls";
 
 export const metadata: Metadata = { title: "Veículo — Gearhead" };
 
@@ -116,7 +117,12 @@ async function VehicleDetails({ params }: { params: Promise<{ id: string }> }) {
             <p className="mt-1 mb-4 text-sm text-muted">
               Remove o veículo, a placa e todas as fotos. Não pode ser desfeito.
             </p>
-            <DeleteVehicleButton action={deleteVehicleAction.bind(null, vehicle.id)} />
+            <ConfirmActionButton
+              action={deleteVehicleAction.bind(null, vehicle.id)}
+              confirmText="Excluir este veículo e todas as fotos?"
+              label="Excluir veículo"
+              pendingLabel="Excluindo…"
+            />
           </section>
         </>
       )}

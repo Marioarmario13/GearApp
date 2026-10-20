@@ -1,7 +1,7 @@
 "use client";
 
 import { MAX_PHOTOS_PER_VEHICLE, PHOTO_MIME_TYPES, validatePhoto } from "@gearhead/shared";
-import { useActionState, useId, useState, useTransition } from "react";
+import { useActionState, useId, useState } from "react";
 import { FormMessage, SubmitButton } from "@/components/form";
 import type { FormState } from "@/lib/forms";
 
@@ -51,30 +51,5 @@ export function PhotoUploader({
         <SubmitButton pendingText="Enviando…">Enviar foto</SubmitButton>
       </div>
     </form>
-  );
-}
-
-export function DeleteVehicleButton({ action }: { action: () => Promise<FormState> }) {
-  const [pending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
-
-  return (
-    <div className="flex flex-col gap-3">
-      <FormMessage error={error ?? undefined} />
-      <button
-        type="button"
-        disabled={pending}
-        onClick={() => {
-          if (!window.confirm("Excluir este veículo e todas as fotos?")) return;
-          startTransition(async () => {
-            const result = await action();
-            if (result?.error) setError(result.error);
-          });
-        }}
-        className="self-start rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
-      >
-        {pending ? "Excluindo…" : "Excluir veículo"}
-      </button>
-    </div>
   );
 }

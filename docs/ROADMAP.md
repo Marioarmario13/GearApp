@@ -44,9 +44,16 @@ Legenda: ✅ concluído · 🟡 em andamento · ⬜ pendente
 
 **Portão:** usuário só altera seus veículos; testes cobrem as regras. Seeds fictícios.
 
-## Etapa 4 — Parceiros e certificações ⬜
+## Etapa 4 — Parceiros e certificações ✅
 
-- [ ] `businesses`, `specialties`, `credentials` (documentos privados), fluxo de aprovação.
+- [x] `businesses`, `specialties` (catálogo de 18), `business_specialties`, `credentials` (documentos privados), fluxo de aprovação.
+- [x] Aprovação exige documento de registro (CNPJ/MEI) conferido; certificações públicas só após conferência individual.
+- [x] `audit_logs` antecipada da Etapa 7: toda decisão admin é registrada (quem, quando, o quê).
+- [x] Web: diretório público com filtros e paginação, área do dono, painel `/admin` com fila e histórico.
+- [x] Mobile: diretório e detalhe (somente leitura).
+- [x] 57 testes pgTAP novos (118 no total) + 9 testes de integração com API/Storage reais + fluxo completo validado no navegador.
+- Pendente: cadastro de parceiro e conferência pelo app (hoje só no site); localização/raio (Etapa 5); notificar o dono quando houver decisão (sem provedor de e-mail no custo zero).
+- Decisão: ordem ajustada — `audit_logs` entrou aqui porque a aprovação de parceiros precisa ser auditável desde o início.
 
 **Portão:** parceiro pendente não aparece como verificado; administração protegida.
 

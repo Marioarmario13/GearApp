@@ -2,7 +2,7 @@
 
 Plataforma brasileira para entusiastas automotivos: garagem virtual, diretório de profissionais verificados, radar geográfico, eventos, benefícios de parceiros e comunidade. Site responsivo + painel (Next.js) e app Android/iOS (Expo).
 
-> Status: **Etapa 3 — garagem** concluída (veículos, placa privada, fotos e visibilidade, no site e no app). Veja [`docs/ROADMAP.md`](docs/ROADMAP.md).
+> Status: **Etapa 4 — parceiros e certificações** concluída (diretório público, cadastro de estabelecimentos, documentos privados e aprovação administrativa auditada). Veja [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Estrutura
 
@@ -37,7 +37,7 @@ npm run dev:web      # site em http://localhost:3000
 npm run dev:mobile   # Expo; escaneie o QR code com o Expo Go
 ```
 
-Usuários fictícios do seed: `admin@gearhead.test` (administrador) e `piloto@gearhead.test` — senha em [`supabase/seed.sql`](supabase/seed.sql). E-mails enviados localmente aparecem no Mailpit (http://127.0.0.1:54324); o Studio fica em http://127.0.0.1:54323.
+Usuários fictícios do seed: `admin@gearhead.test` (administrador) e `piloto@gearhead.test` — senha em [`supabase/seed.sql`](supabase/seed.sql). E-mails enviados localmente aparecem no Mailpit (http://127.0.0.1:44324); o Studio fica em http://127.0.0.1:44323.
 
 ## Verificações
 

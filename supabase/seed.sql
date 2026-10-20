@@ -43,3 +43,51 @@ where id = '11111111-1111-4111-8111-111111111111';
 update public.profiles
 set city = 'Curitiba', state = 'PR'
 where id = '22222222-2222-4222-8222-222222222222';
+
+-- ---------------------------------------------------------------------------
+-- Parceiros fictícios (Etapa 4). Os documentos referenciados não existem no
+-- Storage local: servem só para exercitar a listagem e o painel admin.
+-- ---------------------------------------------------------------------------
+insert into public.businesses (id, owner_id, kind, name, description, phone, phone_is_whatsapp,
+                               street, street_number, district, city, state, postal_code)
+values
+  ('33333333-3333-4333-8333-333333333331', '22222222-2222-4222-8222-222222222222', 'workshop',
+   'Oficina Exemplo Turbo', 'Oficina fictícia para desenvolvimento: injeção e preparação.',
+   '41999990000', true, 'Rua Fictícia', '100', 'Centro', 'Curitiba', 'PR', '80000000'),
+  ('33333333-3333-4333-8333-333333333332', '22222222-2222-4222-8222-222222222222', 'detailing',
+   'Estética Teste Brilho', 'Cadastro fictício aguardando conferência.',
+   '41988880000', false, null, null, null, 'Curitiba', 'PR', null)
+on conflict (id) do nothing;
+
+insert into public.business_specialties (business_id, specialty_id) values
+  ('33333333-3333-4333-8333-333333333331', 'injecao-eletronica'),
+  ('33333333-3333-4333-8333-333333333331', 'preparacao-motor'),
+  ('33333333-3333-4333-8333-333333333332', 'estetica')
+on conflict do nothing;
+
+insert into public.credentials (id, business_id, type, title, issuer, document_path) values
+  ('44444444-4444-4444-8444-444444444441', '33333333-3333-4333-8333-333333333331',
+   'business_registration', 'Comprovante de CNPJ (fictício)', 'Receita Federal',
+   '22222222-2222-4222-8222-222222222222/33333333-3333-4333-8333-333333333331/cnpj-ficticio.pdf'),
+  ('44444444-4444-4444-8444-444444444442', '33333333-3333-4333-8333-333333333331',
+   'certification', 'Curso de injeção eletrônica (fictício)', 'Escola Técnica Exemplo',
+   '22222222-2222-4222-8222-222222222222/33333333-3333-4333-8333-333333333331/curso-ficticio.pdf'),
+  ('44444444-4444-4444-8444-444444444443', '33333333-3333-4333-8333-333333333332',
+   'business_registration', 'Certificado MEI (fictício)', 'Portal do Empreendedor',
+   '22222222-2222-4222-8222-222222222222/33333333-3333-4333-8333-333333333332/mei-ficticio.pdf')
+on conflict (id) do nothing;
+
+-- Conferência simulada pelo admin do seed (fora das RPCs, então registra a auditoria aqui).
+update public.credentials
+   set status = 'approved', reviewed_by = '11111111-1111-4111-8111-111111111111', reviewed_at = now()
+ where id in ('44444444-4444-4444-8444-444444444441', '44444444-4444-4444-8444-444444444442')
+   and status = 'pending';
+update public.businesses
+   set status = 'approved', reviewed_by = '11111111-1111-4111-8111-111111111111', reviewed_at = now()
+ where id = '33333333-3333-4333-8333-333333333331' and status = 'pending';
+insert into public.audit_logs (actor_id, action, entity_type, entity_id, details)
+select '11111111-1111-4111-8111-111111111111', 'business.approved', 'business',
+       '33333333-3333-4333-8333-333333333331', '{"note":"seed"}'
+where not exists (
+  select 1 from public.audit_logs where entity_id = '33333333-3333-4333-8333-333333333331'
+);

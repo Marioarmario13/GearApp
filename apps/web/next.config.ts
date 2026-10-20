@@ -6,8 +6,8 @@ const nextConfig: NextConfig = {
   // @gearhead/shared é consumido como código-fonte TypeScript (sem build próprio).
   transpilePackages: ["@gearhead/shared"],
   experimental: {
-    // Upload de fotos via Server Action: 5 MB (limite do bucket) + overhead do multipart.
-    serverActions: { bodySizeLimit: "5.5mb" },
+    // Uploads via Server Action: documentos até 10 MB (maior limite de bucket) + overhead do multipart.
+    serverActions: { bodySizeLimit: "10.5mb" },
   },
   turbopack: {
     rules: {

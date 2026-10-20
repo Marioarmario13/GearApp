@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { dataErrorMessage, GearheadDataError, validatePhoto } from "./garage-data";
+import { dataErrorMessage, GearheadDataError } from "./data-core";
+import { validatePhoto } from "./garage-data";
 
 describe("validatePhoto", () => {
   it("aceita JPG/PNG/WebP até 5 MB", () => {

@@ -31,6 +31,15 @@
 - Limites anti-abuso no banco: 20 veículos/usuário, 10 fotos/veículo, 5 MB, tipos de imagem restritos (bucket + validação no cliente/servidor). O mobile converte para JPEG antes do upload.
 - Verificado: 35 testes pgTAP da garagem, 6 testes de integração com API/Storage reais e checagem manual no navegador (dono x outro usuário).
 
+## Controles implementados (Etapa 4 — parceiros)
+
+- "Verificado" só existe após conferência documentada: o banco recusa aprovar sem documento de registro aprovado por admin, e certificações só ficam públicas uma a uma após conferência.
+- Dono não altera status, revisão nem cria credencial aprovada (grants por coluna + triggers). Mudar nome/tipo de aprovado volta para conferência.
+- Painel `/admin` responde 404 a não-admins; cada RPC administrativa checa `is_admin()` no banco.
+- `audit_logs` append-only registra toda decisão (ator, ação, entidade, nota). Leitura só admin.
+- Documentos em bucket privado; URLs assinadas de 5 min; evidência aprovada não pode ser apagada pelo dono.
+- Lição: uma policy do Storage referenciava coluna sem grant e fazia **todo** delete no Storage falhar — corrigido com função `security definer`; regra registrada no CLAUDE.md.
+
 ### Pendências conhecidas
 
 - Confirmação de e-mail está desligada **apenas no ambiente local** (`enable_confirmations = false`); ligar em qualquer ambiente hospedado.
@@ -38,6 +47,8 @@
 - Rate limiting e CAPTCHA de cadastro a definir antes do piloto (Etapa 9).
 - Metadados EXIF (inclusive GPS) de fotos enviadas pelo **web** não são removidos; o mobile reprocessa a imagem. Remover EXIF no servidor antes do piloto.
 - Arquivos órfãos no Storage (falha ao remover depois de apagar a linha) — limpeza periódica na Etapa 9.
+- **[JURÍDICO]** Retenção de documentos de parceiros (CNPJ/MEI podem conter dados pessoais de MEI): definir prazo e base legal; hoje, ao excluir o parceiro, os arquivos são apagados e a auditoria permanece.
+- Telefone/e-mail de parceiros são públicos por escolha do dono; avaliar proteção contra raspagem (rate limit) antes do piloto.
 
 ## Localização (Etapas 5 e 8)
 

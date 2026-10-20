@@ -3,6 +3,238 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string;
+          actor_id: string | null;
+          created_at: string;
+          details: NonNullable<Json>;
+          entity_id: string;
+          entity_type: string;
+          id: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          action: string;
+          actor_id?: string | null;
+          created_at?: string;
+          details?: NonNullable<Json>;
+          entity_id: string;
+          entity_type: string;
+          id?: never;
+        };
+        Update: {
+          action?: string;
+          actor_id?: string | null;
+          created_at?: string;
+          details?: NonNullable<Json>;
+          entity_id?: string;
+          entity_type?: string;
+          id?: never;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_actor_id_fkey";
+            columns: ["actor_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      business_specialties: {
+        Row: {
+          business_id: string;
+          specialty_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          specialty_id: string;
+        };
+        Update: {
+          business_id?: string;
+          specialty_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_specialties_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "business_specialties_specialty_id_fkey";
+            columns: ["specialty_id"];
+            isOneToOne: false;
+            referencedRelation: "specialties";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      businesses: {
+        Row: {
+          city: string;
+          created_at: string;
+          description: string | null;
+          district: string | null;
+          email: string | null;
+          id: string;
+          kind: Database["public"]["Enums"]["business_kind"];
+          name: string;
+          owner_id: string;
+          phone: string | null;
+          phone_is_whatsapp: boolean;
+          postal_code: string | null;
+          review_note: string | null;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+          state: string;
+          status: Database["public"]["Enums"]["business_status"];
+          street: string | null;
+          street_number: string | null;
+          updated_at: string;
+          website: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          city: string;
+          created_at?: string;
+          description?: string | null;
+          district?: string | null;
+          email?: string | null;
+          id?: string;
+          kind: Database["public"]["Enums"]["business_kind"];
+          name: string;
+          owner_id?: string;
+          phone?: string | null;
+          phone_is_whatsapp?: boolean;
+          postal_code?: string | null;
+          review_note?: string | null;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          state: string;
+          status?: Database["public"]["Enums"]["business_status"];
+          street?: string | null;
+          street_number?: string | null;
+          updated_at?: string;
+          website?: string | null;
+        };
+        Update: {
+          city?: string;
+          created_at?: string;
+          description?: string | null;
+          district?: string | null;
+          email?: string | null;
+          id?: string;
+          kind?: Database["public"]["Enums"]["business_kind"];
+          name?: string;
+          owner_id?: string;
+          phone?: string | null;
+          phone_is_whatsapp?: boolean;
+          postal_code?: string | null;
+          review_note?: string | null;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          state?: string;
+          status?: Database["public"]["Enums"]["business_status"];
+          street?: string | null;
+          street_number?: string | null;
+          updated_at?: string;
+          website?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "businesses_owner_id_fkey";
+            columns: ["owner_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "businesses_reviewed_by_fkey";
+            columns: ["reviewed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      credentials: {
+        Row: {
+          business_id: string;
+          created_at: string;
+          document_path: string;
+          expires_on: string | null;
+          id: string;
+          issued_on: string | null;
+          issuer: string | null;
+          review_note: string | null;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+          specialty_id: string | null;
+          status: Database["public"]["Enums"]["credential_status"];
+          title: string;
+          type: Database["public"]["Enums"]["credential_type"];
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          created_at?: string;
+          document_path: string;
+          expires_on?: string | null;
+          id?: string;
+          issued_on?: string | null;
+          issuer?: string | null;
+          review_note?: string | null;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          specialty_id?: string | null;
+          status?: Database["public"]["Enums"]["credential_status"];
+          title: string;
+          type: Database["public"]["Enums"]["credential_type"];
+        };
+        Update: {
+          business_id?: string;
+          created_at?: string;
+          document_path?: string;
+          expires_on?: string | null;
+          id?: string;
+          issued_on?: string | null;
+          issuer?: string | null;
+          review_note?: string | null;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          specialty_id?: string | null;
+          status?: Database["public"]["Enums"]["credential_status"];
+          title?: string;
+          type?: Database["public"]["Enums"]["credential_type"];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "credentials_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "credentials_reviewed_by_fkey";
+            columns: ["reviewed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "credentials_specialty_id_fkey";
+            columns: ["specialty_id"];
+            isOneToOne: false;
+            referencedRelation: "specialties";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           avatar_url: string | null;
@@ -37,6 +269,25 @@ export type Database = {
           state?: string | null;
           updated_at?: string;
           username?: string | null;
+        };
+        Relationships: [];
+      };
+      specialties: {
+        Row: {
+          id: string;
+          name: string;
+          sort: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          id: string;
+          name: string;
+          sort?: number;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          sort?: number;
         };
         Relationships: [];
       };
@@ -151,6 +402,47 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: Database["public"]["Enums"]["app_role"];
       };
+      get_business_credentials: {
+        Args: { p_business_id: string };
+        Returns: {
+          created_at: string;
+          document_path: string;
+          expires_on: string;
+          id: string;
+          issued_on: string;
+          issuer: string;
+          review_note: string;
+          reviewed_at: string;
+          specialty_id: string;
+          status: Database["public"]["Enums"]["credential_status"];
+          title: string;
+          type: Database["public"]["Enums"]["credential_type"];
+        }[];
+      };
+      get_business_review: {
+        Args: { p_business_id: string };
+        Returns: {
+          review_note: string;
+          reviewed_at: string;
+          status: Database["public"]["Enums"]["business_status"];
+        }[];
+      };
+      review_business: {
+        Args: {
+          p_business_id: string;
+          p_decision: Database["public"]["Enums"]["business_status"];
+          p_note?: string;
+        };
+        Returns: undefined;
+      };
+      review_credential: {
+        Args: {
+          p_credential_id: string;
+          p_decision: Database["public"]["Enums"]["credential_status"];
+          p_note?: string;
+        };
+        Returns: undefined;
+      };
       set_user_role: {
         Args: { new_role: Database["public"]["Enums"]["app_role"]; target_user_id: string };
         Returns: undefined;
@@ -158,6 +450,11 @@ export type Database = {
     };
     Enums: {
       app_role: "user" | "admin";
+      business_kind:
+        "workshop" | "mechanic" | "tuner" | "gas_station" | "parts_store" | "detailing";
+      business_status: "pending" | "approved" | "rejected" | "suspended";
+      credential_status: "pending" | "approved" | "rejected";
+      credential_type: "business_registration" | "certification" | "training" | "other";
       vehicle_visibility: "public" | "private";
     };
     CompositeTypes: {
@@ -271,6 +568,10 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["user", "admin"],
+      business_kind: ["workshop", "mechanic", "tuner", "gas_station", "parts_store", "detailing"],
+      business_status: ["pending", "approved", "rejected", "suspended"],
+      credential_status: ["pending", "approved", "rejected"],
+      credential_type: ["business_registration", "certification", "training", "other"],
       vehicle_visibility: ["public", "private"],
     },
   },
