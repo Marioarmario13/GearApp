@@ -1,6 +1,6 @@
 # Modelo de Dados — Gearhead
 
-> Status: `profiles` **implementada** (Etapa 2); demais tabelas são rascunho conceitual. Cada tabela só entra no banco via migração versionada, na etapa em que for realmente necessária.
+> Status: `profiles` (Etapa 2) e garagem (Etapa 3) **implementadas**; demais tabelas são rascunho conceitual. Cada tabela só entra no banco via migração versionada, na etapa em que for realmente necessária.
 
 ## Implementado
 
@@ -53,3 +53,17 @@
 - Nomes em inglês, `snake_case`; textos de UI em pt-BR.
 - RLS habilitada em toda tabela exposta; grants explícitos por operação.
 - Seeds somente com dados fictícios.
+
+### Garagem — `supabase/migrations/20261020000100_garage.sql`
+
+**`public.vehicles`**: `id` uuid PK · `owner_id` → `profiles` (default `auth.uid()`, cascade) · `make` (1–60) · `model` (1–80) · `year` smallint (≥ 1886; máximo = ano atual + 1 por trigger) · `nickname` (1–60, nulo) · `visibility` (`public`/`private`, padrão `private`) · `created_at`/`updated_at`.
+Índices: `(owner_id, created_at desc)` e parcial em `created_at desc where visibility = 'public'`.
+Grants: SELECT colunas; INSERT/UPDATE só `make, model, year, nickname, visibility` (cliente não escolhe `id` nem `owner_id`); DELETE. Policies: SELECT dono ou público; INSERT/UPDATE/DELETE só dono. Trigger: máximo 20 por usuário.
+
+**`public.vehicle_private`**: `vehicle_id` PK/FK (cascade) · `plate` (`^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$`). Policy única: só o dono do veículo (todas as operações).
+
+**`public.vehicle_photos`**: `id` · `vehicle_id` (cascade) · `storage_path` único, formato `<owner>/<vehicle>/<arquivo>.(jpg|jpeg|png|webp)` validado por CHECK + trigger (a pasta tem de ser do dono e do veículo) · máximo 10 por veículo. SELECT se o veículo é visível; INSERT/DELETE só dono.
+
+**Storage `vehicle-photos`**: privado, 5 MB, `image/jpeg|png|webp`. Upload só em `<auth.uid()>/<veículo próprio>/`; leitura pelo dono ou de fotos registradas de veículos públicos; exclusão só na própria pasta.
+
+Helpers (`private`): `owns_vehicle`, `can_view_vehicle`, `owns_vehicle_folder` (valida o caminho sem erro de cast), `validate_vehicle`, `validate_vehicle_photo`.

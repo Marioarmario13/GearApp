@@ -26,7 +26,9 @@
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
     "db:lint": "supabase db lint --level warning --fail-on warning",
-    "db:new": "supabase migration new"
+    "db:new": "supabase migration new",
+    "db:types": "supabase gen types typescript --local --schema public > packages/shared/src/database.types.ts && prettier --write packages/shared/src/database.types.ts",
+    "test:integration": "node scripts/with-local-supabase.mjs npm run test -w @gearhead/shared"
   },
   "devDependencies": {
     "prettier": "^3.9.10",

@@ -1,9 +1,9 @@
 import { APP_NAME, authErrorMessage, signInSchema, signUpSchema } from "@gearhead/shared";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { Button, Card, colors, Field, Message } from "../components/ui";
-import { supabase } from "../lib/supabase";
-import { fieldErrorsFrom, type FieldErrors } from "../lib/validation";
+import { Button, Card, colors, Field, Message } from "@/components/ui";
+import { supabase } from "@/lib/supabase";
+import { fieldErrorsFrom, type FieldErrors } from "@/lib/validation";
 
 type Mode = "signin" | "signup";
 

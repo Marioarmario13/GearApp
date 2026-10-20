@@ -7,4 +7,9 @@ module.exports = defineConfig([
   {
     ignores: ["dist/*", ".expo/*"],
   },
+  {
+    // Fábricas de jest.mock são içadas antes dos imports: só aceitam require().
+    files: ["**/*.test.ts", "**/*.test.tsx"],
+    rules: { "@typescript-eslint/no-require-imports": "off" },
+  },
 ]);

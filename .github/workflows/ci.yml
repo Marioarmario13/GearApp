@@ -30,7 +30,7 @@ jobs:
 
   database:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -38,7 +38,11 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      # Sobe só o Postgres local (Docker), aplica migrações + seed e roda os testes pgTAP.
-      - run: npx supabase db start
+      # Supabase local (Docker) só com o necessário: Postgres, Auth, REST, Storage e gateway.
+      # Aplica migrações + seed; depois pgTAP e testes de integração (API + Storage reais).
+      - run: npx supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,mailpit,postgres-meta
       - run: npm run db:lint
       - run: npm run db:test
+      - run: npm run test:integration
+      # Tipos gerados precisam refletir as migrações commitadas.
+      - run: npm run db:types && git diff --exit-code packages/shared/src/database.types.ts

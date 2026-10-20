@@ -1,6 +1,6 @@
 # Arquitetura — Gearhead
 
-> Status: Etapa 2 (banco e autenticação). Atualizar sempre que a implementação mudar.
+> Status: Etapa 3 (garagem). Atualizar sempre que a implementação mudar.
 
 ## Visão geral
 
@@ -71,3 +71,11 @@ App mobile ──► supabase-js (sessão em expo-sqlite/localStorage) → mesma
 - Ambos usam apenas a chave **publishable**. Nenhum código cliente usa `service_role`.
 - Rotas web: `/cadastro`, `/entrar`, `/conta` (protegida). Mobile: tela de login/cadastro e tela de conta (sem roteador ainda; Expo Router entra quando houver mais telas).
 - Testes: pgTAP (`supabase/tests/database`) cobre o banco; Vitest cobre helpers web/shared; Jest cobre telas do mobile com o cliente Supabase mockado; fluxo web completo validado manualmente no navegador contra o Supabase local.
+
+## Garagem (Etapa 3)
+
+- Camada de dados em `packages/shared/src/garage-data.ts`, usada por web (Server Actions/Server Components) e mobile (telas). Cada função recebe o cliente Supabase **autenticado do chamador** — a autorização continua no banco.
+- Tipos do banco gerados em `packages/shared/src/database.types.ts`; clientes tipados com `SupabaseClient<Database>`.
+- Fotos: o web envia o arquivo para uma Server Action, que faz o upload com a sessão do usuário; o mobile escolhe na galeria, converte para JPEG e envia direto ao Storage. Exibição por URLs assinadas.
+- O mobile passou a usar **Expo Router** com `Stack.Protected` (guarda de navegação; dados protegidos pela RLS).
+- Testes em camadas: pgTAP (RLS/Storage), integração do shared contra o Supabase local (`npm run test:integration`, também no CI), unitários (Vitest/Jest) e verificação manual no navegador.

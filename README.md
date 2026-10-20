@@ -2,7 +2,7 @@
 
 Plataforma brasileira para entusiastas automotivos: garagem virtual, diretório de profissionais verificados, radar geográfico, eventos, benefícios de parceiros e comunidade. Site responsivo + painel (Next.js) e app Android/iOS (Expo).
 
-> Status: **Etapa 2 — banco e autenticação** concluída (cadastro, login, perfil e RLS testada). Veja [`docs/ROADMAP.md`](docs/ROADMAP.md).
+> Status: **Etapa 3 — garagem** concluída (veículos, placa privada, fotos e visibilidade, no site e no app). Veja [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Estrutura
 
@@ -41,17 +41,19 @@ Usuários fictícios do seed: `admin@gearhead.test` (administrador) e `piloto@ge
 
 ## Verificações
 
-| Comando                | O que faz                                        |
-| ---------------------- | ------------------------------------------------ |
-| `npm run verify`       | Tudo abaixo, na ordem usada pelo CI              |
-| `npm run format:check` | Prettier (use `npm run format` para corrigir)    |
-| `npm run lint`         | ESLint em todos os workspaces                    |
-| `npm run typecheck`    | TypeScript strict em todos os workspaces         |
-| `npm run test`         | Vitest (shared, web) e Jest/jest-expo (mobile)   |
-| `npm run build:web`    | Build de produção do site                        |
-| `npm run db:test`      | Testes pgTAP do banco (RLS, grants, constraints) |
-| `npm run db:lint`      | Lint do schema do banco                          |
-| `npm run db:reset`     | Recria o banco local (migrações + seed)          |
+| Comando                    | O que faz                                        |
+| -------------------------- | ------------------------------------------------ |
+| `npm run verify`           | Tudo abaixo, na ordem usada pelo CI              |
+| `npm run format:check`     | Prettier (use `npm run format` para corrigir)    |
+| `npm run lint`             | ESLint em todos os workspaces                    |
+| `npm run typecheck`        | TypeScript strict em todos os workspaces         |
+| `npm run test`             | Vitest (shared, web) e Jest/jest-expo (mobile)   |
+| `npm run build:web`        | Build de produção do site                        |
+| `npm run db:test`          | Testes pgTAP do banco (RLS, grants, constraints) |
+| `npm run db:lint`          | Lint do schema do banco                          |
+| `npm run db:reset`         | Recria o banco local (migrações + seed)          |
+| `npm run db:types`         | Regenera os tipos TypeScript do banco            |
+| `npm run test:integration` | Camada de dados contra a API/Storage locais      |
 
 Rodar em um workspace só: `npm run test -w @gearhead/shared`.
 

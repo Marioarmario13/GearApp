@@ -1,4 +1,5 @@
 import "expo-sqlite/localStorage/install";
+import type { Database } from "@gearhead/shared";
 import { createClient } from "@supabase/supabase-js";
 import { AppState } from "react-native";
 
@@ -12,7 +13,7 @@ if (!url || !key) {
   );
 }
 
-export const supabase = createClient(url, key, {
+export const supabase = createClient<Database>(url, key, {
   auth: {
     storage: localStorage,
     autoRefreshToken: true,

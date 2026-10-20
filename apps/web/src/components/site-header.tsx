@@ -27,9 +27,14 @@ async function AuthNav() {
 
   if (user) {
     return (
-      <Link href="/conta" className="rounded-lg border border-line px-4 py-2 text-sm font-medium">
-        Minha conta
-      </Link>
+      <div className="flex items-center gap-2">
+        <Link href="/garagem" className="px-3 py-2 text-sm font-medium">
+          Garagem
+        </Link>
+        <Link href="/conta" className="rounded-lg border border-line px-4 py-2 text-sm font-medium">
+          Minha conta
+        </Link>
+      </div>
     );
   }
 

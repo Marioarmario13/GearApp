@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isValidPlate, normalizePlate, vehicleInputSchema } from "./vehicle";
+import { isValidPlate, normalizePlate, vehicleInputSchema, vehicleTitle } from "./vehicle";
 
 const now = new Date("2026-06-01T12:00:00Z");
 
@@ -26,7 +26,8 @@ describe("vehicleInputSchema", () => {
   it("aceita veículo válido e aplica visibilidade privada por padrão", () => {
     const result = schema.parse({ make: "Volkswagen", model: "Fusca", year: 1972 });
     expect(result.visibility).toBe("private");
-    expect(result.plate).toBeUndefined();
+    expect(result.plate).toBeNull();
+    expect(result.nickname).toBeNull();
   });
 
   it("normaliza a placa", () => {
@@ -44,7 +45,40 @@ describe("vehicleInputSchema", () => {
     expect(schema.safeParse({ make: "X", model: "Y", year: 2028 }).success).toBe(false);
   });
 
+  it("aceita ano vindo de formulário (string) e limpa campos vazios", () => {
+    const result = schema.parse({
+      make: "Fiat",
+      model: "147",
+      year: " 1979 ",
+      nickname: "",
+      plate: "",
+    });
+    expect(result).toMatchObject({ year: 1979, nickname: null, plate: null });
+  });
+
+  it("exige o ano", () => {
+    const result = schema.safeParse({ make: "Fiat", model: "147", year: "" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejeita visibilidade desconhecida", () => {
+    expect(
+      schema.safeParse({ make: "X", model: "Y", year: 2000, visibility: "friends" }).success,
+    ).toBe(false);
+  });
+
   it("rejeita marca vazia após trim", () => {
     expect(schema.safeParse({ make: "   ", model: "Y", year: 2000 }).success).toBe(false);
+  });
+});
+
+describe("vehicleTitle", () => {
+  it("usa o apelido quando existe", () => {
+    expect(vehicleTitle({ make: "VW", model: "Fusca", year: 1972, nickname: "Bizorrão" })).toBe(
+      "Bizorrão",
+    );
+    expect(vehicleTitle({ make: "VW", model: "Fusca", year: 1972, nickname: null })).toBe(
+      "VW Fusca 1972",
+    );
   });
 });

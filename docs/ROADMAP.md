@@ -32,10 +32,15 @@ Legenda: ✅ concluído · 🟡 em andamento · ⬜ pendente
 
 **Portão:** cadastro/login funcionam e testes comprovam acesso permitido e negado; usuário comum não vira admin.
 
-## Etapa 3 — Garagem ⬜
+## Etapa 3 — Garagem ✅
 
-- [ ] `vehicles` + fotos no Storage com políticas por dono; visibilidade pública/privada.
-- [ ] Validação Zod compartilhada (ano, placa opcional, etc.).
+- [x] `vehicles` + `vehicle_private` (placa só do dono) + `vehicle_photos`; bucket privado com políticas por dono; visibilidade pública/privada.
+- [x] Limites: 20 veículos/usuário, 10 fotos/veículo, 5 MB, JPG/PNG/WebP.
+- [x] Web: `/garagem`, `/garagem/novo`, `/garagem/[id]` (edição, fotos, exclusão; visitantes veem só veículo público).
+- [x] Mobile: Expo Router; garagem, cadastro, detalhe com fotos da galeria.
+- [x] 35 testes pgTAP novos (61 no total) + 6 testes de integração com API/Storage reais.
+- [x] Validação Zod compartilhada (ano, placa opcional, etc.) e camada de dados compartilhada (`garage-data.ts`).
+- Pendente: app mobile testado em aparelho real (só testes automatizados e bundle); perfil público com veículos de outros usuários (entra com comunidade); limpeza periódica de arquivos órfãos (Etapa 9).
 
 **Portão:** usuário só altera seus veículos; testes cobrem as regras. Seeds fictícios.
 

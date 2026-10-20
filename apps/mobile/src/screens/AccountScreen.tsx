@@ -1,8 +1,8 @@
 import type { AppRole, PublicProfile } from "@gearhead/shared";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import { Button, Card, colors, Message } from "../components/ui";
-import { supabase } from "../lib/supabase";
+import { Button, Card, colors, Message } from "@/components/ui";
+import { supabase } from "@/lib/supabase";
 
 const PROFILE_COLUMNS =
   "id, username, display_name, city, state, avatar_url, created_at, updated_at";
@@ -69,9 +69,7 @@ export function AccountScreen({ userId, email }: { userId: string; email: string
           Sair
         </Button>
       </Card>
-      <Text style={styles.hint}>
-        A edição do perfil no app chega junto com a Garagem (Etapa 3).
-      </Text>
+      <Text style={styles.hint}>Por enquanto, edite seu perfil pelo site.</Text>
     </View>
   );
 }

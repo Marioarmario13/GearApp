@@ -6,13 +6,13 @@ Instruções permanentes para o Claude Code neste repositório. Revisar e atuali
 
 Plataforma Gearhead (Brasil): site + painel (Next.js) e app Android/iOS (Expo). Diretório de profissionais verificados, garagem virtual, radar (PostGIS), eventos, ofertas, comunidade e, depois, GPS social com consentimento. Requisitos em `docs/PRODUCT_REQUIREMENTS.md`; etapas e portões em `docs/ROADMAP.md`.
 
-**Etapa atual:** 2 concluída (Supabase local, `profiles`, auth web/mobile, RLS testada) → próxima: Etapa 3 (Garagem).
+**Etapa atual:** 3 concluída (garagem: veículos, placa privada, fotos no Storage, web e mobile) → próxima: Etapa 4 (Parceiros e certificações).
 
 ## Estrutura
 
 - `apps/web` — `@gearhead/web`, Next.js 16 App Router, Tailwind 4, Vitest + Testing Library. Código em `src/`, alias `@/*`.
-- `apps/mobile` — `@gearhead/mobile`, Expo SDK 58, React Native 0.88, Jest (`jest-expo`) + `@testing-library/react-native` 14.
-- `packages/shared` — `@gearhead/shared`, Zod 4 + regras puras; consumido como fonte TS (sem build). Web usa `transpilePackages`.
+- `apps/mobile` — `@gearhead/mobile`, Expo SDK 58, React Native 0.88, **Expo Router** (rotas em `src/app/`, telas em `src/screens/`, alias `@/*` → `src/`), Jest (`jest-expo`) + `@testing-library/react-native` 14.
+- `packages/shared` — `@gearhead/shared`, Zod 4, regras puras, tipos gerados do banco (`database.types.ts`, via `npm run db:types` — nunca editar à mão) e camada de dados compartilhada (`garage-data.ts`: funções que recebem o cliente Supabase do chamador). Consumido como fonte TS (sem build). Web usa `transpilePackages`.
 - `supabase/` — `config.toml`, `migrations/` (SQL versionado), `seed.sql` (fictício), `tests/database/*.test.sql` (pgTAP).
 - `docs/` — documentação permanente.
 
@@ -24,6 +24,10 @@ Plataforma Gearhead (Brasil): site + painel (Next.js) e app Android/iOS (Expo). 
 - `profiles.role` não é legível nem editável pelo cliente: grants por coluna. Papel do usuário atual via RPC `current_user_role()`; troca de papel só por `set_user_role()` (admin). Selecione colunas explícitas — `select=*`/`return=representation` em `profiles` falha (42501) por causa de `role`.
 - `auto_expose_new_tables = false`: toda tabela nova precisa de `grant` explícito na migração, além de RLS e policies por operação.
 - Helpers internos de RLS ficam no schema `private` (não exposto pela API).
+- Garagem: dado sensível do veículo (placa) fica em `vehicle_private`, só o dono lê. Fotos no bucket **privado** `vehicle-photos` em `<owner_id>/<vehicle_id>/<arquivo>`; exibição só por URL assinada (10 min). Terceiros só leem fotos de veículos públicos.
+- Sem `upsert` em tabelas com grants por coluna: `ON CONFLICT DO UPDATE` exige UPDATE em todas as colunas inseridas (inclusive FKs). Use update-ou-insert.
+- Excluir veículo: remover arquivos do Storage **antes** da linha (SQL não apaga objetos do Storage; `deleteVehicle` já faz isso).
+- Web: upload via Server Action (`bodySizeLimit` 5.5mb em `next.config.ts`). Mobile: `expo-image-picker` + `expo-image-manipulator` (converte para JPEG ≤1600 px).
 
 ## Comandos (raiz)
 
@@ -41,6 +45,8 @@ npm run db:lint       # lint do schema
 npm run db:reset      # recria o banco local: migrações + seed (APAGA dados locais)
 npm run db:new <nome> # nova migração
 npm run db:status     # URLs e chaves locais
+npm run db:types      # regenera packages/shared/src/database.types.ts (após cada migração)
+npm run test:integration  # testes do shared contra API/Storage locais (precisa de db:start)
 ```
 
 Usuários do seed (local): `admin@gearhead.test` e `piloto@gearhead.test` — senha em `supabase/seed.sql`.
@@ -52,6 +58,8 @@ Dependências: `npm install <pkg> -w <workspace>`. No mobile, use `npx expo inst
 - Next.js 16: ler `node_modules/next/dist/docs/` antes de usar APIs (ver `apps/web/AGENTS.md`). `next typegen` gera `LayoutProps`/`PageProps` (já incluído no `typecheck`).
 - Expo 58: consultar docs versionadas (ver `apps/mobile/AGENTS.md`).
 - `@testing-library/react-native` 14: `render` e `fireEvent` são async → sempre `await`.
+- Testes do mobile: mockar `@/lib/supabase` com `src/test-utils/supabase-mock.ts`; `expo-router` e `@/auth/AuthProvider` são mockados por arquivo.
+- Next 16 mantém páginas anteriores ocultas no DOM (preservação de estado): em testes de navegador, filtre elementos visíveis.
 - TypeScript 6 no mobile: `types` padrão é vazio — tipos globais (ex.: `jest`) precisam estar em `compilerOptions.types`.
 
 ## Convenções
@@ -61,7 +69,7 @@ Dependências: `npm install <pkg> -w <workspace>`. No mobile, use `npx expo inst
 - Validação com Zod em `packages/shared`, mas **servidor/RLS é a fonte da verdade** — schema no cliente nunca é a única proteção.
 - Testes ao lado do código (`*.test.ts(x)`).
 - Prettier: `printWidth` 100, LF. ESLint por workspace (flat config).
-- Toda mudança de schema = migração versionada em `supabase/migrations` + testes pgTAP cobrindo SELECT/INSERT/UPDATE/DELETE para anon, dono, não dono e admin. Seeds só com dados fictícios. Constraints do banco espelham os schemas Zod de `packages/shared`.
+- Toda mudança de schema = migração versionada em `supabase/migrations` (aplicar com `npx supabase migration up`, sem apagar dados locais) + `npm run db:types` + testes pgTAP cobrindo SELECT/INSERT/UPDATE/DELETE para anon, dono, não dono e admin (+ políticas de Storage quando houver arquivos). Seeds só com dados fictícios. Constraints do banco espelham os schemas Zod de `packages/shared`.
 
 ## Regras inegociáveis
 

@@ -9,12 +9,8 @@
   "exports": {
     ".": "./src/index.ts"
   },
-  "scripts": {
-    "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run"
-  },
   "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {
@@ -23,5 +19,11 @@
     "typescript": "^5",
     "typescript-eslint": "^8.72.0",
     "vitest": "^5.0.5"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   }
 }
