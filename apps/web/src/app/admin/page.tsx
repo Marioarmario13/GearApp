@@ -1,5 +1,6 @@
 import { getReviewQueue, listBusinessesByIds } from "@gearhead/shared";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { BusinessCard } from "@/components/partners";
 import { requireAdmin } from "@/lib/auth";
@@ -11,6 +12,20 @@ export default function AdminPage() {
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-4 py-12 sm:px-8">
       <h1 className="text-3xl font-bold tracking-tight">Administração</h1>
+      <nav aria-label="Seções" className="flex flex-wrap gap-2 text-sm">
+        <Link
+          href="/admin/denuncias"
+          className="rounded-lg border border-line px-3 py-1.5 font-medium"
+        >
+          Denúncias
+        </Link>
+        <Link
+          href="/admin/auditoria"
+          className="rounded-lg border border-line px-3 py-1.5 font-medium"
+        >
+          Auditoria
+        </Link>
+      </nav>
       <Suspense fallback={<p className="text-muted">Carregando fila…</p>}>
         <Queue />
       </Suspense>

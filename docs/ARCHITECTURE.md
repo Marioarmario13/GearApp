@@ -1,6 +1,6 @@
 # Arquitetura — Gearhead
 
-> Status: Etapa 6 (eventos e benefícios). Atualizar sempre que a implementação mudar.
+> Status: Etapa 7 (comunidade e administração). Atualizar sempre que a implementação mudar.
 
 ## Visão geral
 
@@ -113,3 +113,10 @@ Dono ─► pin no mapa ─► set_business_location() ─► businesses.locatio
 - Regras críticas em RPCs `security definer` com `select … for update` (capacidade de evento, limites de cupom).
 - Web: Server Actions em `src/app/actions/events.ts` e `offers.ts`; seletor de local reutilizável em `src/components/map/location-picker.tsx`.
 - Mobile: `src/screens/EventsScreens.tsx` e `OffersScreens.tsx` (criação de eventos e gestão de ofertas ficam no site).
+
+## Comunidade (Etapa 7)
+
+- `packages/shared/src/community.ts`: amizades, bloqueios, denúncias e funções de moderação.
+- Regra de ouro: **bloqueio é verificado no banco** (policies + RPCs). A interface só oculta botões por conveniência.
+- Web: `src/app/actions/community.ts`, componentes `ReportButton` e `ActionButton` (`src/components/community.tsx`), páginas `/u/[username]`, `/amigos`, `/admin/denuncias`, `/admin/auditoria`.
+- Mobile: `src/screens/CommunityScreens.tsx` (amigos e `ReportSection`).

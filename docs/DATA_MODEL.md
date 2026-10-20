@@ -1,6 +1,6 @@
 # Modelo de Dados — Gearhead
 
-> Status: `profiles` (Etapa 2), garagem (3), parceiros (4), radar (5) e eventos/benefícios (6) **implementados**; demais tabelas são rascunho conceitual. Cada tabela só entra no banco via migração versionada, na etapa em que for realmente necessária.
+> Status: `profiles` (Etapa 2), garagem (3), parceiros (4), radar (5), eventos/benefícios (6) e comunidade (7) **implementados**; demais tabelas são rascunho conceitual. Cada tabela só entra no banco via migração versionada, na etapa em que for realmente necessária.
 
 ## Implementado
 
@@ -101,3 +101,11 @@ Grants: público lê colunas sem `review_note`/`reviewed_by`; dono insere/atuali
 **`public.coupons`**: oferta, usuário, `code` (8 caracteres sem ambíguos, único), `status` (`issued`/`redeemed`/`cancelled`), `expires_at` = fim da oferta. Sem escrita direta: `claim_offer()`, `redeem_coupon()` (dono do parceiro), `cancel_coupon()` (cliente, só emitido). Leitura: cliente, dono do parceiro e admin.
 
 **RPCs**: `rsvp_event`, `cancel_event`, `remove_event` (admin, auditado), `set_event_location`, `get_event_attendees`, `claim_offer`, `cancel_coupon`, `redeem_coupon`.
+
+### Comunidade — `supabase/migrations/20261024000100_community.sql`
+
+**`public.blocks`** (bloqueador, bloqueado): cada um lê só os próprios bloqueios; escrita por `block_user()`/`unblock_user()`. Helpers `private.blocked_with(outro)` e `private.blocked_between(a, b)`; policies de `profiles` e `vehicles` e as funções `can_view_vehicle` e `rsvp_event` foram atualizadas para respeitar bloqueios.
+
+**`public.friendships`**: `requester_id`, `addressee_id`, `status` (`pending`/`accepted`), índice único por par (independe de quem pediu). Escrita por `send_friend_request()` (limite de 30 por dia; pedido cruzado vira amizade) e `respond_friend_request()`; qualquer um dos dois pode excluir. Leitura: participantes; nomes via `my_friendships()`.
+
+**`public.reports`**: `target_type` (`profile`/`vehicle`/`business`/`event`/`offer`), `target_id`, `reason` (`spam`, `offensive`, `fraud`, `dangerous_driving`, `privacy`, `other`), `details`, `status` (`open`/`resolved`/`dismissed`), resolução. Único aberto por denunciante+alvo; máximo de 20 por dia. Leitura: o próprio denunciante e admins. `resolve_report()` e `moderate_hide_vehicle()` (admin, auditados); fila em `admin_list_reports()`.

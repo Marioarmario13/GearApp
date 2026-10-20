@@ -12,6 +12,7 @@ import {
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { VehicleForm } from "../vehicle-form";
+import { ReportButton } from "@/components/community";
 import { ConfirmActionButton } from "@/components/confirm-action-button";
 import { PhotoUploader } from "./vehicle-controls";
 
@@ -21,7 +22,7 @@ export default function VehiclePage({ params }: PageProps<"/garagem/[id]">) {
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-12">
       <Link href="/garagem" className="text-sm text-muted hover:underline">
-        ← Minha garagem
+        ← Garagem
       </Link>
       <Suspense fallback={<p className="text-muted">Carregando veículo…</p>}>
         <VehicleDetails params={params} />
@@ -126,6 +127,7 @@ async function VehicleDetails({ params }: { params: Promise<{ id: string }> }) {
           </section>
         </>
       )}
+      {!isOwner && <ReportButton targetType="vehicle" targetId={vehicle.id} />}
     </>
   );
 }

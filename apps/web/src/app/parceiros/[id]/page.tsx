@@ -13,6 +13,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { LazyMapView } from "@/components/map/lazy-map";
+import { ReportButton } from "@/components/community";
 import { BusinessStatusBadge } from "@/components/partners";
 import { createClient } from "@/lib/supabase/server";
 
@@ -193,6 +194,7 @@ async function Partner({ params }: { params: Promise<{ id: string }> }) {
           </ul>
         )}
       </section>
+      <ReportButton targetType="business" targetId={business.id} />
     </>
   );
 }

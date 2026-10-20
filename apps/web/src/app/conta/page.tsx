@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { signOut } from "@/app/actions/auth";
 import { getMyProfile, getMyRole, requireUser } from "@/lib/auth";
@@ -35,6 +36,11 @@ async function AccountContent() {
         <div>
           <p className="font-semibold">{profile.display_name ?? "Sem nome"}</p>
           <p className="text-sm text-muted">{user.email}</p>
+          {profile.username && (
+            <Link href={`/u/${profile.username}`} className="text-sm text-accent hover:underline">
+              Ver meu perfil público
+            </Link>
+          )}
           {role === "admin" && (
             <p className="mt-1 text-xs font-semibold uppercase tracking-widest text-accent">
               Administrador

@@ -22,6 +22,7 @@ import {
   setEventLocationAction,
   updateEventAction,
 } from "@/app/actions/events";
+import { ReportButton } from "@/components/community";
 import { LazyMapView } from "@/components/map/lazy-map";
 import { LocationPicker } from "@/components/map/location-picker";
 import { getCurrentUser, getMyRole } from "@/lib/auth";
@@ -148,6 +149,8 @@ async function EventDetails({ params }: { params: Promise<{ id: string }> }) {
           <OrganizerPanel eventId={event.id} userId={user!.id} />
         </Suspense>
       )}
+
+      {!isOrganizer && user && <ReportButton targetType="event" targetId={event.id} />}
 
       {role === "admin" && event.status !== "removed" && (
         <section className="rounded-2xl border border-red-300 p-5 dark:border-red-900">

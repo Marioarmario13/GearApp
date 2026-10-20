@@ -129,7 +129,7 @@ select throws_ok(
   '23505', null, 'denúncia duplicada aberta é rejeitada'
 );
 select throws_ok(
-  $$ select public.resolve_report((select id from public.reports limit 1), 'resolved', 'ok') $$,
+  $$ select public.resolve_report((select id from public.reports where target_id = 'c4c4c4c4-0000-4000-8000-000000000001'), 'resolved', 'ok') $$,
   '42501', null, 'usuário comum não resolve denúncias'
 );
 reset role;
@@ -143,13 +143,14 @@ set local role authenticated;
 set local request.jwt.claims = '{"sub":"c3c3c3c3-0000-4000-8000-00000000000d","role":"authenticated"}';
 select lives_ok(
   $$ select public.moderate_hide_vehicle('c4c4c4c4-0000-4000-8000-000000000001', 'Conteúdo ofensivo');
-     select public.resolve_report((select id from public.admin_list_reports() limit 1), 'resolved', 'Veículo ocultado') $$,
+     select public.resolve_report((select id from public.admin_list_reports() where target_id = 'c4c4c4c4-0000-4000-8000-000000000001'), 'resolved', 'Veículo ocultado') $$,
   'admin oculta o veículo e resolve a denúncia'
 );
 reset role;
 select is(
   (select string_agg(action, ',' order by action) from public.audit_logs
-   where entity_id in ('c4c4c4c4-0000-4000-8000-000000000001', (select id from public.reports limit 1))),
+   where entity_id in ('c4c4c4c4-0000-4000-8000-000000000001',
+                      (select id from public.reports where target_id = 'c4c4c4c4-0000-4000-8000-000000000001'))),
   'report.resolved,vehicle.hidden', 'moderação registrada na auditoria'
 );
 

@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { claimOfferAction } from "@/app/actions/offers";
 import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { ReportButton } from "@/components/community";
 import { ClaimButton } from "./claim-button";
 
 export const metadata: Metadata = { title: "Oferta — Gearhead" };
@@ -64,6 +65,7 @@ async function Offer({ params }: { params: Promise<{ id: string }> }) {
       ) : (
         <p className="text-muted">Esta oferta não está disponível no momento.</p>
       )}
+      {user && <ReportButton targetType="offer" targetId={offer.id} />}
       <p className="text-xs text-muted">
         O desconto é concedido pelo estabelecimento. O Gearhead não processa pagamentos.
       </p>

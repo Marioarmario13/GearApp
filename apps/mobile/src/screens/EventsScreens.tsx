@@ -18,6 +18,7 @@ import { useAuth } from "@/auth/AuthProvider";
 import { MapWebView } from "@/components/MapWebView";
 import { Button, Card, colors, Message } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
+import { ReportSection } from "@/screens/CommunityScreens";
 
 export function EventsScreen() {
   const router = useRouter();
@@ -202,6 +203,7 @@ export function EventScreen({ id }: { id: string }) {
           style={{ height: 220 }}
         />
       )}
+      {userId !== event.organizer_id && <ReportSection targetType="event" targetId={event.id} />}
     </ScrollView>
   );
 }

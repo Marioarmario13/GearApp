@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, View } from "react-native";
 import { MapWebView } from "@/components/MapWebView";
 import { Button, Card, colors, Message } from "@/components/ui";
+import { ReportSection } from "@/screens/CommunityScreens";
 import { supabase } from "@/lib/supabase";
 
 const dateBR = (iso: string) =>
@@ -147,6 +148,7 @@ export function PartnerScreen({ id }: { id: string }) {
           ))
         )}
       </View>
+      <ReportSection targetType="business" targetId={business.id} />
     </ScrollView>
   );
 }

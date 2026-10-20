@@ -10,6 +10,8 @@ const PROTECTED_PREFIXES = [
   "/eventos/novo",
   "/eventos/meus",
   "/meus-cupons",
+  "/amigos",
+  "/u/",
 ];
 const GUEST_ONLY = ["/entrar", "/cadastro"];
 

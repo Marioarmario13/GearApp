@@ -6,13 +6,13 @@ Instruções permanentes para o Claude Code neste repositório. Revisar e atuali
 
 Plataforma Gearhead (Brasil): site + painel (Next.js) e app Android/iOS (Expo). Diretório de profissionais verificados, garagem virtual, radar (PostGIS), eventos, ofertas, comunidade e, depois, GPS social com consentimento. Requisitos em `docs/PRODUCT_REQUIREMENTS.md`; etapas e portões em `docs/ROADMAP.md`.
 
-**Etapa atual:** 6 concluída (eventos com presença; ofertas e cupons simples) → próxima: Etapa 7 (Comunidade: amizades, bloqueios, denúncias, moderação).
+**Etapa atual:** 7 concluída (amizades, bloqueios no backend, denúncias, moderação e auditoria) → próxima: Etapa 8 (GPS social seguro).
 
 ## Estrutura
 
 - `apps/web` — `@gearhead/web`, Next.js 16 App Router, Tailwind 4, Vitest + Testing Library. Código em `src/`, alias `@/*`.
 - `apps/mobile` — `@gearhead/mobile`, Expo SDK 58, React Native 0.88, **Expo Router** (rotas em `src/app/`, telas em `src/screens/`, alias `@/*` → `src/`), Jest (`jest-expo`) + `@testing-library/react-native` 14.
-- `packages/shared` — `@gearhead/shared`, Zod 4, regras puras, tipos gerados do banco (`database.types.ts`, via `npm run db:types` — nunca editar à mão) e camada de dados compartilhada (`data-core.ts` com erros/helpers, `garage-data.ts`, `partner-data.ts`, `radar.ts`, `events.ts`, `offers.ts`: funções que recebem o cliente Supabase do chamador). Consumido como fonte TS (sem build). Web usa `transpilePackages`.
+- `packages/shared` — `@gearhead/shared`, Zod 4, regras puras, tipos gerados do banco (`database.types.ts`, via `npm run db:types` — nunca editar à mão) e camada de dados compartilhada (`data-core.ts` com erros/helpers, `garage-data.ts`, `partner-data.ts`, `radar.ts`, `events.ts`, `offers.ts`, `community.ts`: funções que recebem o cliente Supabase do chamador). Consumido como fonte TS (sem build). Web usa `transpilePackages`.
 - `supabase/` — `config.toml`, `migrations/` (SQL versionado), `seed.sql` (fictício), `tests/database/*.test.sql` (pgTAP).
 - `docs/` — documentação permanente.
 
@@ -35,8 +35,10 @@ Plataforma Gearhead (Brasil): site + painel (Next.js) e app Android/iOS (Expo). 
 - Web: MapLibre v6 é ESM e o worker é copiado para `public/vendor/` por `apps/web/scripts/copy-maplibre-worker.mjs` (roda em `predev`/`prebuild`; pasta no .gitignore) + `setWorkerUrl`. Componente `MapView` só no cliente via `LazyMapView` (`next/dynamic`, `ssr: false`).
 - Mobile: mapa = MapLibre v5 UMD (CDN unpkg com SRI) dentro de `react-native-webview` (`src/lib/map-html.ts`, `src/components/MapWebView.tsx`); roda no Expo Go. Ao trocar a versão do MapLibre, recalcular os hashes SRI. Localização: `expo-location` com `Accuracy.Low`, só em primeiro plano.
 - Eventos/benefícios: presença só pela RPC `rsvp_event` (bloqueia a linha do evento para respeitar a capacidade); total público em `events.attendee_count` (gatilho); lista nominal só para organizador/admin (`get_event_attendees`). Cupons só por RPC (`claim_offer`, `redeem_coupon`, `cancel_coupon`); resgate apenas pelo dono do parceiro e com resposta idêntica para código inexistente ou alheio (anti-enumeração). Datas de formulário são horário de Brasília. Sem carteira financeira.
+- Bloqueios: `private.blocked_with(outro)` / `blocked_between(a, b)` (security definer) entram nas policies e RPCs. **Todo recurso social novo (localização, mensagens, presença) precisa checar bloqueio no banco.** Respostas para bloqueado são neutras (não revelam o bloqueio).
+- Denúncias: inserção direta com grants por coluna (limite diário e sem duplicata aberta); leitura completa e resolução só por admin (`admin_list_reports`, `resolve_report`, `moderate_hide_vehicle`), sempre auditadas.
 - Gatilhos que precisam alterar uma linha "travada" pela regra de negócio (ex.: contador de presença em evento encerrado) usam `set_config('gearhead.event_admin_change', 'on', true)` dentro de função `security definer`; clientes não conseguem definir esse GUC pela API.
-- Web: rotas `/parceiros` (público), `/radar` (público), `/eventos` (público; criar/meus exigem login), `/ofertas` (público), `/meus-cupons`, `/meus-parceiros` (dono), `/admin` (admin; `requireAdmin()` devolve 404 a não-admins). Uploads via Server Action (`bodySizeLimit` 10.5mb em `next.config.ts`). Mobile: `expo-image-picker` + `expo-image-manipulator` (converte para JPEG ≤1600 px).
+- Web: rotas `/parceiros` (público), `/radar` (público), `/eventos` (público; criar/meus exigem login), `/ofertas` (público), `/meus-cupons`, `/amigos`, `/u/[username]` (perfil público, exige login), `/admin/denuncias`, `/admin/auditoria`, `/meus-parceiros` (dono), `/admin` (admin; `requireAdmin()` devolve 404 a não-admins). Uploads via Server Action (`bodySizeLimit` 10.5mb em `next.config.ts`). Mobile: `expo-image-picker` + `expo-image-manipulator` (converte para JPEG ≤1600 px).
 
 ## Comandos (raiz)
 
@@ -55,7 +57,7 @@ npm run db:reset      # recria o banco local: migrações + seed (APAGA dados lo
 npm run db:new <nome> # nova migração
 npm run db:status     # URLs e chaves locais
 npm run db:types      # regenera packages/shared/src/database.types.ts (após cada migração)
-npm run test:integration  # testes do shared contra API/Storage locais (precisa de db:start)
+npm run test:integration  # testes do shared contra API/Storage locais, em série (precisa de db:start)
 ```
 
 Usuários do seed (local): `admin@gearhead.test` e `piloto@gearhead.test` — senha em `supabase/seed.sql`. O seed também cria 2 parceiros do piloto (1 aprovado, 1 pendente); o limite é 3 por usuário, então os testes de integração que criam parceiro dependem de não sobrar lixo de execuções anteriores.

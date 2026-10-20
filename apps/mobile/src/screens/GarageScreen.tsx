@@ -73,6 +73,9 @@ export function GarageScreen() {
           <Link href="/ofertas" style={styles.link} accessibilityRole="link">
             Ofertas
           </Link>
+          <Link href="/amigos" style={styles.link} accessibilityRole="link">
+            Amigos
+          </Link>
           <Link href="/conta" style={styles.link} accessibilityRole="link">
             Minha conta
           </Link>

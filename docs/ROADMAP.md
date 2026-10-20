@@ -78,9 +78,13 @@ Legenda: ✅ concluído · 🟡 em andamento · ⬜ pendente
 
 **Portão:** datas, regras e estados de resgate validados no servidor.
 
-## Etapa 7 — Comunidade e administração ⬜
+## Etapa 7 — Comunidade e administração ✅
 
-- [ ] `friendships`, `blocks`, `reports`, moderação, `audit_logs`.
+- [x] `friendships` (RPCs, pedido cruzado vira amizade, limite diário), `blocks` (aplicados em perfis, veículos/fotos, amizade e presença em eventos; bloqueado não é avisado), `reports` (limite diário, sem duplicata aberta), moderação (ocultar veículo, remover evento, suspender parceiro) e `audit_logs` (já desde a Etapa 4).
+- [x] Web: perfil público `/u/[username]` (garagem pública, amizade, bloquear, denunciar), `/amigos`, botão Denunciar em veículo/parceiro/evento/oferta, `/admin/denuncias` e `/admin/auditoria`.
+- [x] Mobile: tela de amigos (pedidos, amigos, bloqueados) e denúncia em parceiro e evento.
+- [x] 32 testes pgTAP novos (223 no total) + integração repetível.
+- Pendente: suspensão de conta de usuário (exige operação de servidor com chave de serviço — Etapa 9); busca de pessoas por nome (hoje pelo link do perfil).
 
 **Portão:** bloqueios aplicados no backend; ações admin auditadas.
 

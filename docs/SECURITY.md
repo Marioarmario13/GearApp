@@ -56,6 +56,12 @@
 - Remoção de evento por moderação exige motivo e fica auditada. Avisos de segurança no cadastro de passeios e track days; velocidade só em autódromo.
 - Sem carteira financeira nem pagamentos: o cupom é apenas um código de desconto concedido pelo estabelecimento.
 
+## Controles implementados (Etapa 7 — comunidade)
+
+- Bloqueio aplicado no banco (não só na interface): entre um par com bloqueio não há leitura de perfil, veículos públicos e fotos, pedido de amizade nem presença em eventos do outro. Bloquear desfaz amizade e presenças cruzadas em eventos futuros. Quem é bloqueado não é avisado e recebe respostas neutras.
+- Amizade e bloqueio só por RPCs (sem escrita direta). Limites anti-abuso: 30 pedidos de amizade e 20 denúncias por dia; uma denúncia aberta por alvo.
+- Moderação só por admins, com motivo obrigatório e registro em `audit_logs`; tela de auditoria somente leitura.
+
 ### Pendências conhecidas
 
 - Confirmação de e-mail está desligada **apenas no ambiente local** (`enable_confirmations = false`); ligar em qualquer ambiente hospedado.
@@ -65,6 +71,7 @@
 - Arquivos órfãos no Storage (falha ao remover depois de apagar a linha) — limpeza periódica na Etapa 9.
 - **[JURÍDICO]** Retenção de documentos de parceiros (CNPJ/MEI podem conter dados pessoais de MEI): definir prazo e base legal; hoje, ao excluir o parceiro, os arquivos são apagados e a auditoria permanece.
 - Mapas: a instância pública da OpenFreeMap não tem SLA; seguir o plano de saída de `docs/MAPS.md` se necessário. O app baixa o MapLibre do unpkg (SRI protege a integridade; disponibilidade depende do CDN).
+- Suspensão/banimento de contas exige ação de servidor com chave de serviço (Supabase Auth admin) — planejar com operação segura na Etapa 9.
 - Telefone/e-mail de parceiros são públicos por escolha do dono; avaliar proteção contra raspagem (rate limit) antes do piloto.
 
 ## Localização (Etapas 5 e 8)
