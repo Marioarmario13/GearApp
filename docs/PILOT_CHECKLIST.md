@@ -18,7 +18,7 @@ Estado em **2026-10-20**. Legenda: ✅ feito · ⬜ pendente · ⚖️ jurídico
 - ⬜ Suspensão de conta de usuário pela interface admin (hoje pelo painel do Supabase).
 - ⬜ Notificações (pedidos de amizade, lembretes de evento, cupom vencendo) — 💰 provedor de push/e-mail.
 - ⬜ Recuperação de senha pela interface (fluxo do Supabase Auth + e-mail) — 💰 SMTP.
-- ⬜ Busca de pessoas por nome (hoje pelo link `/u/username`).
+- ✅ Busca de pessoas por nome ou @usuário (site em `/amigos`, app na tela de amigos; respeita bloqueios, 3–30 caracteres, até 20 resultados).
 - ⬜ Agrupamento de marcadores no mapa quando houver muitos parceiros.
 - ⬜ Remover metadados EXIF de fotos enviadas pelo site.
 - ⬜ Limpeza agendada (pg_cron) e rotina de arquivos órfãos (ver `OPERATIONS.md`).

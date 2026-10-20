@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { reportInputSchema, reportTargetPath } from "./community";
+import { normalizePeopleQuery, reportInputSchema, reportTargetPath } from "./community";
 
 describe("reportInputSchema", () => {
   const base = {
@@ -28,5 +28,14 @@ describe("reportTargetPath", () => {
     expect(reportTargetPath("business", "b1")).toBe("/admin/parceiros/b1");
     expect(reportTargetPath("profile", "p1", "piloto")).toBe("/u/piloto");
     expect(reportTargetPath("profile", "p1", null)).toBeNull();
+  });
+});
+
+describe("normalizePeopleQuery", () => {
+  it("normaliza @, espaços e maiúsculas", () => {
+    expect(normalizePeopleQuery("  @Piloto ")).toBe("piloto");
+  });
+  it.each(["ab", " @ab ", "a".repeat(31)])("recusa %j", (q) => {
+    expect(normalizePeopleQuery(q)).toBeNull();
   });
 });

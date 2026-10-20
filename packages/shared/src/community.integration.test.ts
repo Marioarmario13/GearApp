@@ -13,6 +13,7 @@ import {
   removeFriendship,
   resolveReport,
   respondFriendRequest,
+  searchProfiles,
   sendFriendRequest,
   submitReport,
   unblockUser,
@@ -60,6 +61,16 @@ describe.skipIf(!url || !key)("comunidade — integração com Supabase local", 
     await respondFriendRequest(admin.client, incoming.friendship_id, true);
     const mine = (await listMyFriendships(piloto.client)).find((f) => f.other_id === admin.userId)!;
     expect(mine.status).toBe("accepted");
+  });
+
+  it("busca de pessoas por nome respeita bloqueios", async () => {
+    const found = await searchProfiles(piloto.client, "Admin");
+    expect(found.map((p) => p.username)).toContain("admin_gearhead");
+    expect((await searchProfiles(piloto.client, "piloto_teste")).length).toBe(0);
+    await blockUser(admin.client, piloto.userId);
+    expect(await searchProfiles(piloto.client, "admin_gearhead")).toEqual([]);
+    await unblockUser(admin.client, piloto.userId);
+    await expect(searchProfiles(piloto.client, "ab")).rejects.toMatchObject({ code: "GH001" });
   });
 
   it("bloqueio esconde o perfil nos dois sentidos e desfaz a amizade", async () => {

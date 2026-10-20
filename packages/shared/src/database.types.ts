@@ -1065,6 +1065,16 @@ export type Database = {
           state: string;
         }[];
       };
+      search_profiles: {
+        Args: { p_query: string };
+        Returns: {
+          city: string;
+          display_name: string;
+          id: string;
+          state: string;
+          username: string;
+        }[];
+      };
       send_friend_request: {
         Args: { p_user_id: string };
         Returns: Database["public"]["Enums"]["friendship_status"];

@@ -8,6 +8,8 @@ const mock = {
   listMyBlocks: jest.fn(),
   respondFriendRequest: jest.fn(),
   submitReport: jest.fn(),
+  searchProfiles: jest.fn(),
+  sendFriendRequest: jest.fn(),
 };
 jest.mock("@gearhead/shared", () => ({
   ...jest.requireActual("@gearhead/shared"),
@@ -15,6 +17,8 @@ jest.mock("@gearhead/shared", () => ({
   listMyBlocks: (...a: unknown[]) => mock.listMyBlocks(...a),
   respondFriendRequest: (...a: unknown[]) => mock.respondFriendRequest(...a),
   submitReport: (...a: unknown[]) => mock.submitReport(...a),
+  searchProfiles: (...a: unknown[]) => mock.searchProfiles(...a),
+  sendFriendRequest: (...a: unknown[]) => mock.sendFriendRequest(...a),
 }));
 
 beforeEach(() => Object.values(mock).forEach((m) => m.mockReset()));
@@ -66,4 +70,21 @@ test("denúncia exige motivo e envia para o alvo correto", async () => {
     reason: "dangerous_driving",
     details: null,
   });
+});
+
+test("busca pessoas e envia pedido de amizade pelo resultado", async () => {
+  mock.listMyFriendships.mockResolvedValue([]);
+  mock.listMyBlocks.mockResolvedValue([]);
+  mock.searchProfiles.mockResolvedValue([
+    { id: "u3", username: "caio", display_name: "Caio", city: "Recife", state: "PE" },
+  ]);
+  mock.sendFriendRequest.mockResolvedValue("pending");
+  await render(<FriendsScreen />);
+  await fireEvent.changeText(await screen.findByLabelText("Buscar pessoas"), "cai");
+  await fireEvent.press(screen.getByRole("button", { name: "Buscar" }));
+  expect(mock.searchProfiles).toHaveBeenCalledWith(expect.anything(), "cai");
+  await fireEvent.press(await screen.findByRole("button", { name: "Adicionar Caio @caio" }));
+  expect(mock.sendFriendRequest).toHaveBeenCalledWith(expect.anything(), "u3");
+  expect(await screen.findByText("Pedido enviado.")).toBeOnTheScreen();
+  expect(screen.getByText("Adicionado")).toBeOnTheScreen();
 });

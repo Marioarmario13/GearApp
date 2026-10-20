@@ -6,16 +6,19 @@ import {
   REPORT_REASON_LABELS,
   REPORT_REASONS,
   respondFriendRequest,
+  searchProfiles,
+  sendFriendRequest,
   submitReport,
   unblockUser,
   type BlockedUser,
   type Friendship,
+  type PersonResult,
   type ReportReason,
   type ReportTarget,
 } from "@gearhead/shared";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Button, colors, Message } from "@/components/ui";
+import { Button, colors, Field, Message } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 
 export function FriendsScreen() {
@@ -56,7 +59,11 @@ export function FriendsScreen() {
     `${f.display_name ?? "Sem nome"}${f.username ? ` @${f.username}` : ""}`;
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+      <PeopleSearch
+        knownIds={new Set(data.links.map((f) => f.other_id))}
+        onAdded={() => setReload((n) => n + 1)}
+      />
       <Message error={error} />
       <Text accessibilityRole="header" style={styles.section}>
         Pedidos recebidos ({incoming.length})
@@ -85,7 +92,7 @@ export function FriendsScreen() {
         Amigos ({friends.length})
       </Text>
       {friends.length === 0 && (
-        <Text style={styles.muted}>Adicione amigos pelo perfil público no site.</Text>
+        <Text style={styles.muted}>Busque alguém acima para adicionar.</Text>
       )}
       {friends.map((f) => (
         <View key={f.friendship_id} style={styles.row}>
@@ -114,6 +121,86 @@ export function FriendsScreen() {
         </View>
       ))}
     </ScrollView>
+  );
+}
+
+/** Busca por nome/@usuário com pedido de amizade direto do resultado. */
+function PeopleSearch({ knownIds, onAdded }: { knownIds: Set<string>; onAdded: () => void }) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<PersonResult[] | null>(null);
+  const [sent, setSent] = useState<Set<string>>(new Set());
+  const [result, setResult] = useState<{ error?: string; success?: string }>({});
+  const [busy, setBusy] = useState(false);
+
+  async function search() {
+    setBusy(true);
+    setResult({});
+    try {
+      setResults(await searchProfiles(supabase, query));
+    } catch (e) {
+      setResults(null);
+      setResult({ error: dataErrorMessage(e) });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function add(p: PersonResult) {
+    try {
+      const status = await sendFriendRequest(supabase, p.id);
+      setSent((s) => new Set(s).add(p.id));
+      setResult({
+        success:
+          status === "accepted" ? `Agora você e @${p.username} são amigos.` : "Pedido enviado.",
+      });
+      onAdded();
+    } catch (e) {
+      setResult({ error: dataErrorMessage(e) });
+    }
+  }
+
+  return (
+    <View style={{ gap: 8 }}>
+      <Field
+        label="Buscar pessoas"
+        placeholder="Nome ou @usuário"
+        value={query}
+        onChangeText={setQuery}
+        autoCapitalize="none"
+        autoCorrect={false}
+        maxLength={31}
+        returnKeyType="search"
+        onSubmitEditing={search}
+      />
+      <Button variant="secondary" onPress={search} loading={busy}>
+        Buscar
+      </Button>
+      <Message error={result.error} success={result.success} />
+      {results?.length === 0 && <Text style={styles.muted}>Ninguém encontrado.</Text>}
+      {results?.map((p) => {
+        const label = `${p.display_name ?? p.username} @${p.username}`;
+        const done = knownIds.has(p.id) || sent.has(p.id);
+        return (
+          <View key={p.id} style={styles.row}>
+            <Text style={styles.name}>
+              {label}
+              {p.city ? `\n${p.city}${p.state ? `/${p.state}` : ""}` : ""}
+            </Text>
+            {done ? (
+              <Text style={styles.muted}>Adicionado</Text>
+            ) : (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Adicionar ${label}`}
+                onPress={() => add(p)}
+              >
+                <Text style={styles.accept}>Adicionar</Text>
+              </Pressable>
+            )}
+          </View>
+        );
+      })}
+    </View>
   );
 }
 

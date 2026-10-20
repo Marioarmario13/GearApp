@@ -83,6 +83,32 @@ export async function getProfileByUsername(
   return data;
 }
 
+export interface PersonResult {
+  id: string;
+  username: string;
+  display_name: string | null;
+  city: string | null;
+  state: string | null;
+}
+
+/** Termo normalizado para a busca de pessoas; null se inválido (o banco valida de novo). */
+export function normalizePeopleQuery(query: string): string | null {
+  const term = query.trim().replace(/^@/, "").toLowerCase();
+  return term.length >= 3 && term.length <= 30 ? term : null;
+}
+
+/** Busca por username ou nome (até 20; bloqueios e o próprio usuário ficam de fora). */
+export async function searchProfiles(
+  client: GearheadClient,
+  query: string,
+): Promise<PersonResult[]> {
+  const term = normalizePeopleQuery(query);
+  if (!term) throw new GearheadDataError("GH001", "Digite de 3 a 30 caracteres para buscar.");
+  const { data, error } = await client.rpc("search_profiles", { p_query: term });
+  if (error) fail(error);
+  return data as PersonResult[];
+}
+
 /** Veículos públicos de um usuário (RLS: some se houver bloqueio). */
 export async function listPublicVehicles(
   client: GearheadClient,
