@@ -1,6 +1,6 @@
 # Arquitetura — Gearhead
 
-> Status: Etapa 8 (GPS social seguro). Atualizar sempre que a implementação mudar.
+> Status: Etapa 9 concluída (piloto local). Atualizar sempre que a implementação mudar.
 
 ## Visão geral
 
@@ -132,3 +132,9 @@ Presença ──► set_presence() (célula ~5,5 km) ──► nearby_friends() 
 ```
 
 - `packages/shared/src/social-gps.ts`; web `src/app/localizacao/` + `src/app/actions/social-gps.ts`; mobile `src/screens/LocationScreen.tsx` (expo-location em primeiro plano).
+
+## Privacidade e operação (Etapa 9)
+
+- `packages/shared/src/privacy.ts` + RPCs `export_my_data` / `delete_my_account`; web: `/conta` (seção Privacidade) e route handler `/conta/dados`.
+- Cabeçalhos de segurança em `apps/web/next.config.ts`.
+- Documentos operacionais: `PRIVACY.md`, `DEPLOYMENT.md`, `OPERATIONS.md`, `PILOT_CHECKLIST.md`.

@@ -98,8 +98,12 @@ Legenda: ✅ concluído · 🟡 em andamento · ⬜ pendente
 
 **Portão:** não autorizados não obtêm coordenadas exatas; sessões expiradas param de compartilhar.
 
-## Etapa 9 — Piloto e lançamento ⬜
+## Etapa 9 — Piloto e lançamento ✅
 
-- [ ] Regressão completa, revisão de privacidade/LGPD, backup, `DEPLOYMENT.md`, `OPERATIONS.md`.
+- [x] Regressão completa (unitários, 267 pgTAP, integração repetível com API/Storage, build web, bundle Android) local e no CI.
+- [x] Revisão de privacidade/LGPD ([`PRIVACY.md`](./PRIVACY.md)) com exportação de dados e exclusão de conta implementadas (13 pgTAP + integração).
+- [x] Revisão de segurança: nenhum segredo versionado, cabeçalhos HTTP de segurança, auditoria de dependências (sem críticas).
+- [x] [`DEPLOYMENT.md`](./DEPLOYMENT.md) (passos, sem publicar), [`OPERATIONS.md`](./OPERATIONS.md) (moderação, limpezas, backup, incidentes) e [`PILOT_CHECKLIST.md`](./PILOT_CHECKLIST.md) com pendências técnicas, operacionais e jurídicas.
+- ⬜ Teste em aparelho real (combinado com o responsável para o fim do projeto).
 
 **Portão:** falhas críticas resolvidas; pendências operacionais/jurídicas documentadas. Publicação somente com autorização explícita.

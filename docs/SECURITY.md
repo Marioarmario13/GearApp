@@ -72,6 +72,12 @@
 - Descoberta só por **presença aproximada** opt-in (até 2 h): célula de ~5,5 km e resposta em faixas de distância, o que dificulta triangulação; nunca coordenadas.
 - Testes cobrem não-destinatário, anônimo, bloqueio, revogação, expiração, ausência de histórico, frequência e descoberta por não-amigos.
 
+## Controles implementados (Etapa 9 — piloto)
+
+- Direitos do titular: exportação completa (`/conta/dados`, JSON) e exclusão da conta com dados e arquivos; único admin não pode se excluir.
+- Cabeçalhos HTTP: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy` (geolocalização só do próprio site; câmera/microfone/pagamento desligados) e CSP `frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'`.
+- Varredura de segredos no repositório e auditoria de dependências (sem críticas; achados transitivos no ferramental Expo/RN).
+
 ### Pendências conhecidas
 
 - Confirmação de e-mail está desligada **apenas no ambiente local** (`enable_confirmations = false`); ligar em qualquer ambiente hospedado.

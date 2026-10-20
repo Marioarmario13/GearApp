@@ -6,13 +6,13 @@ Instruções permanentes para o Claude Code neste repositório. Revisar e atuali
 
 Plataforma Gearhead (Brasil): site + painel (Next.js) e app Android/iOS (Expo). Diretório de profissionais verificados, garagem virtual, radar (PostGIS), eventos, ofertas, comunidade e, depois, GPS social com consentimento. Requisitos em `docs/PRODUCT_REQUIREMENTS.md`; etapas e portões em `docs/ROADMAP.md`.
 
-**Etapa atual:** 8 concluída (GPS social seguro: sessões temporárias com amigos e presença aproximada) → próxima: Etapa 9 (piloto: regressão, revisão de privacidade/LGPD, operação e preparação de publicação).
+**Etapa atual:** 9 concluída — todas as etapas do roadmap entregues; projeto pronto para piloto **local**. Publicação só com autorização explícita (ver `docs/DEPLOYMENT.md` e `docs/PILOT_CHECKLIST.md`). Próximo passo combinado: teste do app em aparelho real.
 
 ## Estrutura
 
 - `apps/web` — `@gearhead/web`, Next.js 16 App Router, Tailwind 4, Vitest + Testing Library. Código em `src/`, alias `@/*`.
 - `apps/mobile` — `@gearhead/mobile`, Expo SDK 58, React Native 0.88, **Expo Router** (rotas em `src/app/`, telas em `src/screens/`, alias `@/*` → `src/`), Jest (`jest-expo`) + `@testing-library/react-native` 14.
-- `packages/shared` — `@gearhead/shared`, Zod 4, regras puras, tipos gerados do banco (`database.types.ts`, via `npm run db:types` — nunca editar à mão) e camada de dados compartilhada (`data-core.ts` com erros/helpers, `garage-data.ts`, `partner-data.ts`, `radar.ts`, `events.ts`, `offers.ts`, `community.ts`, `social-gps.ts`: funções que recebem o cliente Supabase do chamador). Consumido como fonte TS (sem build). Web usa `transpilePackages`.
+- `packages/shared` — `@gearhead/shared`, Zod 4, regras puras, tipos gerados do banco (`database.types.ts`, via `npm run db:types` — nunca editar à mão) e camada de dados compartilhada (`data-core.ts` com erros/helpers, `garage-data.ts`, `partner-data.ts`, `radar.ts`, `events.ts`, `offers.ts`, `community.ts`, `social-gps.ts`, `privacy.ts`: funções que recebem o cliente Supabase do chamador). Consumido como fonte TS (sem build). Web usa `transpilePackages`.
 - `supabase/` — `config.toml`, `migrations/` (SQL versionado), `seed.sql` (fictício), `tests/database/*.test.sql` (pgTAP).
 - `docs/` — documentação permanente.
 
@@ -37,6 +37,7 @@ Plataforma Gearhead (Brasil): site + painel (Next.js) e app Android/iOS (Expo). 
 - Eventos/benefícios: presença só pela RPC `rsvp_event` (bloqueia a linha do evento para respeitar a capacidade); total público em `events.attendee_count` (gatilho); lista nominal só para organizador/admin (`get_event_attendees`). Cupons só por RPC (`claim_offer`, `redeem_coupon`, `cancel_coupon`); resgate apenas pelo dono do parceiro e com resposta idêntica para código inexistente ou alheio (anti-enumeração). Datas de formulário são horário de Brasília. Sem carteira financeira.
 - Bloqueios: `private.blocked_with(outro)` / `blocked_between(a, b)` (security definer) entram nas policies e RPCs. **Todo recurso social novo (localização, mensagens, presença) precisa checar bloqueio no banco.** Respostas para bloqueado são neutras (não revelam o bloqueio).
 - GPS social: tabelas `location_sessions`, `location_session_recipients` e `ephemeral_presence` **sem nenhum grant** para clientes — tudo por RPCs. Só a última posição é guardada; revogar/expirar apaga; `private.purge_expired_locations()` roda a cada acesso (em produção, agendar também). Atualização mínima de 30 s no banco; clientes enviam a cada 60 s e só com a tela aberta (sem localização em segundo plano). Presença aproximada usa célula de 0,05° e devolve só faixas de distância.
+- Privacidade: `export_my_data()` (JSON do titular) e `delete_my_account('EXCLUIR')` (cascata; impede excluir o único admin). `deleteMyAccount()` exclui no banco **antes** de remover arquivos (o token segue válido). Toda tabela nova com dados pessoais precisa entrar em `export_my_data()` e ter `on delete cascade` para `profiles`.
 - Denúncias: inserção direta com grants por coluna (limite diário e sem duplicata aberta); leitura completa e resolução só por admin (`admin_list_reports`, `resolve_report`, `moderate_hide_vehicle`), sempre auditadas.
 - Gatilhos que precisam alterar uma linha "travada" pela regra de negócio (ex.: contador de presença em evento encerrado) usam `set_config('gearhead.event_admin_change', 'on', true)` dentro de função `security definer`; clientes não conseguem definir esse GUC pela API.
 - Web: rotas `/parceiros` (público), `/radar` (público), `/eventos` (público; criar/meus exigem login), `/ofertas` (público), `/meus-cupons`, `/amigos`, `/u/[username]` (perfil público, exige login), `/admin/denuncias`, `/admin/auditoria`, `/localizacao`, `/meus-parceiros` (dono), `/admin` (admin; `requireAdmin()` devolve 404 a não-admins). Uploads via Server Action (`bodySizeLimit` 10.5mb em `next.config.ts`). Mobile: `expo-image-picker` + `expo-image-manipulator` (converte para JPEG ≤1600 px).
@@ -95,6 +96,10 @@ Dependências: `npm install <pkg> -w <workspace>`. No mobile, use `npx expo inst
 - Não avançar de etapa se o portão falhar. Não afirmar que testes passaram sem executá-los.
 - Sem competição de velocidade em via pública. Localização desligada por padrão (ver `docs/SECURITY.md`).
 - Provedor de mapas só após comparação documentada (Etapa 5).
+
+## Documentos de piloto
+
+`docs/PRIVACY.md` (LGPD e pendências jurídicas), `docs/DEPLOYMENT.md` (passos de publicação — não executar sem autorização), `docs/OPERATIONS.md` (moderação, limpezas, backup, incidentes), `docs/PILOT_CHECKLIST.md` (estado e pendências). Manter atualizados a cada mudança relevante.
 
 ## Rotina após cada tarefa
 

@@ -2,7 +2,7 @@
 
 Plataforma brasileira para entusiastas automotivos: garagem virtual, diretório de profissionais verificados, radar geográfico, eventos, benefícios de parceiros e comunidade. Site responsivo + painel (Next.js) e app Android/iOS (Expo).
 
-> Status: **Etapa 8 — GPS social seguro** concluída (compartilhamento temporário de localização com amigos, revogação imediata, expiração automática e presença aproximada). Veja [`docs/ROADMAP.md`](docs/ROADMAP.md).
+> Status: **todas as etapas (0–9) concluídas** — pronto para piloto local. Veja o [checklist do piloto](docs/PILOT_CHECKLIST.md). Publicação só com autorização explícita ([implantação](docs/DEPLOYMENT.md)).
 
 ## Estrutura
 
@@ -73,3 +73,7 @@ O projeto usa apenas ferramentas gratuitas e execução local. Planos gratuitos 
 - [Segurança e privacidade](docs/SECURITY.md)
 - [Roadmap e backlog](docs/ROADMAP.md)
 - [Mapas: comparação de provedores e decisão](docs/MAPS.md)
+- [Privacidade e LGPD](docs/PRIVACY.md)
+- [Implantação (não executada)](docs/DEPLOYMENT.md)
+- [Operação](docs/OPERATIONS.md)
+- [Checklist do piloto](docs/PILOT_CHECKLIST.md)
