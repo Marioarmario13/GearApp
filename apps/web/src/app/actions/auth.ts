@@ -2,6 +2,9 @@
 
 import {
   authErrorMessage,
+  dataErrorMessage,
+  DELETE_CONFIRMATION,
+  deleteMyAccount,
   profileUpdateSchema,
   signInSchema,
   signUpSchema,
@@ -68,4 +71,21 @@ export async function updateProfile(_prev: FormState, formData: FormData): Promi
 
   revalidatePath("/conta");
   return { success: "Perfil atualizado.", values };
+}
+
+export async function deleteAccountAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const user = await requireUser();
+  const confirmation = String(formData.get("confirmation") ?? "").trim();
+  if (confirmation !== DELETE_CONFIRMATION) {
+    return { fieldErrors: { confirmation: [`Digite ${DELETE_CONFIRMATION} para confirmar.`] } };
+  }
+  try {
+    await deleteMyAccount(await createClient(), user.id, confirmation);
+  } catch (e) {
+    return { error: dataErrorMessage(e) };
+  }
+  redirect("/?conta=excluida");
 }

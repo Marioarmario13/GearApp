@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { signOut } from "@/app/actions/auth";
 import { getMyProfile, getMyRole, requireUser } from "@/lib/auth";
+import { PrivacySection } from "./privacy-section";
 import { ProfileForm } from "./profile-form";
 
 export const metadata: Metadata = { title: "Minha conta — Gearhead" };
@@ -70,6 +71,8 @@ async function AccountContent() {
         <h2 className="mb-4 text-xl font-semibold">Perfil</h2>
         <ProfileForm profile={profile} />
       </section>
+
+      <PrivacySection />
     </>
   );
 }

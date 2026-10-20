@@ -8,6 +8,7 @@ export * from "./garage-data";
 export * from "./offers";
 export * from "./partner";
 export * from "./partner-data";
+export * from "./privacy";
 export * from "./profile";
 export * from "./radar";
 export * from "./social-gps";

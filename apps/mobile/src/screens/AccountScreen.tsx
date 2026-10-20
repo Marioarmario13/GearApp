@@ -69,7 +69,10 @@ export function AccountScreen({ userId, email }: { userId: string; email: string
           Sair
         </Button>
       </Card>
-      <Text style={styles.hint}>Por enquanto, edite seu perfil pelo site.</Text>
+      <Text style={styles.hint}>
+        Para editar o perfil, baixar seus dados ou excluir a conta, use o site (Minha conta →
+        Privacidade).
+      </Text>
     </View>
   );
 }
