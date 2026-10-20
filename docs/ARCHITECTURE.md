@@ -1,6 +1,6 @@
 # Arquitetura — Gearhead
 
-> Status: Etapa 7 (comunidade e administração). Atualizar sempre que a implementação mudar.
+> Status: Etapa 8 (GPS social seguro). Atualizar sempre que a implementação mudar.
 
 ## Visão geral
 
@@ -120,3 +120,15 @@ Dono ─► pin no mapa ─► set_business_location() ─► businesses.locatio
 - Regra de ouro: **bloqueio é verificado no banco** (policies + RPCs). A interface só oculta botões por conveniência.
 - Web: `src/app/actions/community.ts`, componentes `ReportButton` e `ActionButton` (`src/components/community.tsx`), páginas `/u/[username]`, `/amigos`, `/admin/denuncias`, `/admin/auditoria`.
 - Mobile: `src/screens/CommunityScreens.tsx` (amigos e `ReportSection`).
+
+## GPS social (Etapa 8)
+
+```
+Dono ──(abre sessão: finalidade + amigos + prazo)──► start_location_session()
+  └─ tela aberta: posição a cada 60 s ──► update_session_location()  (banco ignora < 30 s; guarda só a última)
+Destinatário ──► shared_locations_for_me()  (só sessão ativa + amizade + sem bloqueio)
+Revogar/expirar ──► coordenada apagada (limpeza também a cada acesso)
+Presença ──► set_presence() (célula ~5,5 km) ──► nearby_friends() (faixas de distância)
+```
+
+- `packages/shared/src/social-gps.ts`; web `src/app/localizacao/` + `src/app/actions/social-gps.ts`; mobile `src/screens/LocationScreen.tsx` (expo-location em primeiro plano).

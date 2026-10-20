@@ -2,7 +2,7 @@
 
 Plataforma brasileira para entusiastas automotivos: garagem virtual, diretório de profissionais verificados, radar geográfico, eventos, benefícios de parceiros e comunidade. Site responsivo + painel (Next.js) e app Android/iOS (Expo).
 
-> Status: **Etapa 7 — comunidade e administração** concluída (amizades, bloqueios aplicados no banco, denúncias, moderação e auditoria). Veja [`docs/ROADMAP.md`](docs/ROADMAP.md).
+> Status: **Etapa 8 — GPS social seguro** concluída (compartilhamento temporário de localização com amigos, revogação imediata, expiração automática e presença aproximada). Veja [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Estrutura
 

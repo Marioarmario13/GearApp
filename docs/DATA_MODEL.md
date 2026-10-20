@@ -1,6 +1,6 @@
 # Modelo de Dados — Gearhead
 
-> Status: `profiles` (Etapa 2), garagem (3), parceiros (4), radar (5), eventos/benefícios (6) e comunidade (7) **implementados**; demais tabelas são rascunho conceitual. Cada tabela só entra no banco via migração versionada, na etapa em que for realmente necessária.
+> Status: `profiles` (Etapa 2), garagem (3), parceiros (4), radar (5), eventos/benefícios (6), comunidade (7) e GPS social (8) **implementados**; demais tabelas são rascunho conceitual. Cada tabela só entra no banco via migração versionada, na etapa em que for realmente necessária.
 
 ## Implementado
 
@@ -109,3 +109,13 @@ Grants: público lê colunas sem `review_note`/`reviewed_by`; dono insere/atuali
 **`public.friendships`**: `requester_id`, `addressee_id`, `status` (`pending`/`accepted`), índice único por par (independe de quem pediu). Escrita por `send_friend_request()` (limite de 30 por dia; pedido cruzado vira amizade) e `respond_friend_request()`; qualquer um dos dois pode excluir. Leitura: participantes; nomes via `my_friendships()`.
 
 **`public.reports`**: `target_type` (`profile`/`vehicle`/`business`/`event`/`offer`), `target_id`, `reason` (`spam`, `offensive`, `fraud`, `dangerous_driving`, `privacy`, `other`), `details`, `status` (`open`/`resolved`/`dismissed`), resolução. Único aberto por denunciante+alvo; máximo de 20 por dia. Leitura: o próprio denunciante e admins. `resolve_report()` e `moderate_hide_vehicle()` (admin, auditados); fila em `admin_list_reports()`.
+
+### GPS social — `supabase/migrations/20261025000100_social_gps.sql`
+
+**`public.location_sessions`**: dono, `purpose` (`meetup`/`convoy`/`safety`/`other`), nota, `started_at`, `expires_at` (5 min a 8 h), `revoked_at` e **apenas a última posição** (`latitude`, `longitude`, `accuracy_m`, `position_at`), apagada ao revogar/expirar. Uma sessão ativa por usuário.
+
+**`public.location_session_recipients`** (sessão, destinatário): só amigos aceitos e sem bloqueio; até 20.
+
+**`public.ephemeral_presence`** (usuário): célula `cell_lat`/`cell_lng` de 0,05°, `expires_at` até 2 h.
+
+Nenhuma das três tem grant para clientes. **RPCs**: `start_location_session`, `update_session_location` (ignora envios com menos de 30 s), `stop_location_session`, `my_location_session`, `shared_locations_for_me` (coordenadas exatas só para destinatários de sessão ativa, amigos e sem bloqueio), `set_presence`, `clear_presence`, `nearby_friends` (faixas: até 5 km, 5 a 20 km, 20 a 50 km). Helpers: `private.are_friends`, `private.coarse`, `private.purge_expired_locations`.

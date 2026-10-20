@@ -88,9 +88,13 @@ Legenda: ✅ concluído · 🟡 em andamento · ⬜ pendente
 
 **Portão:** bloqueios aplicados no backend; ações admin auditadas.
 
-## Etapa 8 — GPS social seguro ⬜
+## Etapa 8 — GPS social seguro ✅
 
-- [ ] `location_sessions`, `ephemeral_presence`; destinatários autorizados; expiração e revogação.
+- [x] `location_sessions` + `location_session_recipients` (finalidade, amigos sem bloqueio, 5 min–8 h, revogação imediata, expiração pelo relógio do banco, só a última posição, limpeza a cada acesso, mínimo de 30 s entre atualizações) e `ephemeral_presence` (opt-in até 2 h, célula de ~5,5 km, só faixas de distância para amigos).
+- [x] Bloquear encerra o compartilhamento entre os dois; nenhuma tabela legível diretamente.
+- [x] Web `/localizacao` (envio a cada 60 s só com a página aberta) e tela no app (expo-location em primeiro plano).
+- [x] 31 testes pgTAP novos (254 no total) cobrindo abuso, enumeração, bloqueio, revogação e expiração + integração + verificação no navegador.
+- Pendente: agendar `purge_expired_locations()` em produção (pg_cron ou função agendada); testar em aparelho real.
 
 **Portão:** não autorizados não obtêm coordenadas exatas; sessões expiradas param de compartilhar.
 

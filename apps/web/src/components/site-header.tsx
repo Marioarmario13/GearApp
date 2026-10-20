@@ -52,6 +52,9 @@ async function AuthNav() {
         <Link href="/amigos" className={linkClass}>
           Amigos
         </Link>
+        <Link href="/localizacao" className={linkClass}>
+          Localização
+        </Link>
         <Link href="/meus-parceiros" className={linkClass}>
           Meu negócio
         </Link>

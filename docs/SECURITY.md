@@ -62,6 +62,16 @@
 - Amizade e bloqueio só por RPCs (sem escrita direta). Limites anti-abuso: 30 pedidos de amizade e 20 denúncias por dia; uma denúncia aberta por alvo.
 - Moderação só por admins, com motivo obrigatório e registro em `audit_logs`; tela de auditoria somente leitura.
 
+## Controles implementados (Etapa 8 — GPS social)
+
+- Localização desligada por padrão; nada é coletado sem uma sessão aberta pelo usuário.
+- Compartilhamento por **finalidade, destinatários (amigos) e prazo** (5 min a 8 h); revogação imediata; expiração automática pelo relógio do banco; uma sessão ativa por vez.
+- **Sem histórico**: só a última posição existe; revogar ou expirar apaga a coordenada (limpeza a cada acesso às RPCs).
+- Coordenadas exatas só para destinatários autorizados de sessão ativa, ainda amigos e sem bloqueio; bloquear corta o acesso na hora. Tabelas sem grant: nada é legível diretamente.
+- Frequência: banco ignora atualizações com menos de 30 s; site e app enviam a cada 60 s e apenas com a tela aberta (sem permissão de segundo plano).
+- Descoberta só por **presença aproximada** opt-in (até 2 h): célula de ~5,5 km e resposta em faixas de distância, o que dificulta triangulação; nunca coordenadas.
+- Testes cobrem não-destinatário, anônimo, bloqueio, revogação, expiração, ausência de histórico, frequência e descoberta por não-amigos.
+
 ### Pendências conhecidas
 
 - Confirmação de e-mail está desligada **apenas no ambiente local** (`enable_confirmations = false`); ligar em qualquer ambiente hospedado.
@@ -72,6 +82,8 @@
 - **[JURÍDICO]** Retenção de documentos de parceiros (CNPJ/MEI podem conter dados pessoais de MEI): definir prazo e base legal; hoje, ao excluir o parceiro, os arquivos são apagados e a auditoria permanece.
 - Mapas: a instância pública da OpenFreeMap não tem SLA; seguir o plano de saída de `docs/MAPS.md` se necessário. O app baixa o MapLibre do unpkg (SRI protege a integridade; disponibilidade depende do CDN).
 - Suspensão/banimento de contas exige ação de servidor com chave de serviço (Supabase Auth admin) — planejar com operação segura na Etapa 9.
+- **[JURÍDICO]** Localização é dado pessoal sensível no contexto de segurança: revisar base legal (consentimento), textos de consentimento e retenção com profissional antes do piloto.
+- Agendar a limpeza de localizações expiradas em produção (hoje acontece a cada acesso às RPCs).
 - Telefone/e-mail de parceiros são públicos por escolha do dono; avaliar proteção contra raspagem (rate limit) antes do piloto.
 
 ## Localização (Etapas 5 e 8)
