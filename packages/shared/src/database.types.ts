@@ -327,6 +327,39 @@ export type Database = {
           },
         ];
       };
+      ephemeral_presence: {
+        Row: {
+          cell_lat: number;
+          cell_lng: number;
+          expires_at: string;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          cell_lat: number;
+          cell_lng: number;
+          expires_at: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          cell_lat?: number;
+          cell_lng?: number;
+          expires_at?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "ephemeral_presence_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       event_attendees: {
         Row: {
           created_at: string;
@@ -492,6 +525,88 @@ export type Database = {
           {
             foreignKeyName: "friendships_requester_id_fkey";
             columns: ["requester_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      location_session_recipients: {
+        Row: {
+          recipient_id: string;
+          session_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          recipient_id: string;
+          session_id: string;
+        };
+        Update: {
+          recipient_id?: string;
+          session_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "location_session_recipients_recipient_id_fkey";
+            columns: ["recipient_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "location_session_recipients_session_id_fkey";
+            columns: ["session_id"];
+            isOneToOne: false;
+            referencedRelation: "location_sessions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      location_sessions: {
+        Row: {
+          accuracy_m: number | null;
+          expires_at: string;
+          id: string;
+          latitude: number | null;
+          longitude: number | null;
+          owner_id: string;
+          position_at: string | null;
+          purpose: Database["public"]["Enums"]["location_purpose"];
+          purpose_note: string | null;
+          revoked_at: string | null;
+          started_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          accuracy_m?: number | null;
+          expires_at: string;
+          id?: string;
+          latitude?: number | null;
+          longitude?: number | null;
+          owner_id: string;
+          position_at?: string | null;
+          purpose: Database["public"]["Enums"]["location_purpose"];
+          purpose_note?: string | null;
+          revoked_at?: string | null;
+          started_at?: string;
+        };
+        Update: {
+          accuracy_m?: number | null;
+          expires_at?: string;
+          id?: string;
+          latitude?: number | null;
+          longitude?: number | null;
+          owner_id?: string;
+          position_at?: string | null;
+          purpose?: Database["public"]["Enums"]["location_purpose"];
+          purpose_note?: string | null;
+          revoked_at?: string | null;
+          started_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "location_sessions_owner_id_fkey";
+            columns: ["owner_id"];
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
@@ -805,6 +920,7 @@ export type Database = {
           expires_at: string;
         }[];
       };
+      clear_presence: { Args: Record<PropertyKey, never>; Returns: undefined };
       current_user_role: {
         Args: Record<PropertyKey, never>;
         Returns: Database["public"]["Enums"]["app_role"];
@@ -862,6 +978,28 @@ export type Database = {
           incoming: boolean;
           other_id: string;
           status: Database["public"]["Enums"]["friendship_status"];
+          username: string;
+        }[];
+      };
+      my_location_session: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          expires_at: string;
+          id: string;
+          position_at: string;
+          purpose: Database["public"]["Enums"]["location_purpose"];
+          purpose_note: string;
+          recipients: Json;
+          started_at: string;
+        }[];
+      };
+      nearby_friends: {
+        Args: { p_latitude: number; p_longitude: number };
+        Returns: {
+          display_name: string;
+          distance_band: string;
+          until: string;
+          user_id: string;
           username: string;
         }[];
       };
@@ -937,11 +1075,50 @@ export type Database = {
         Args: { p_event_id: string; p_latitude?: number; p_longitude?: number };
         Returns: undefined;
       };
+      set_presence: {
+        Args: { p_latitude: number; p_longitude: number; p_minutes?: number };
+        Returns: string;
+      };
       set_user_role: {
         Args: { new_role: Database["public"]["Enums"]["app_role"]; target_user_id: string };
         Returns: undefined;
       };
+      shared_locations_for_me: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          accuracy_m: number;
+          display_name: string;
+          expires_at: string;
+          latitude: number;
+          longitude: number;
+          owner_id: string;
+          position_at: string;
+          purpose: Database["public"]["Enums"]["location_purpose"];
+          purpose_note: string;
+          session_id: string;
+          username: string;
+        }[];
+      };
+      start_location_session: {
+        Args: {
+          p_minutes: number;
+          p_note?: string;
+          p_purpose: Database["public"]["Enums"]["location_purpose"];
+          p_recipient_ids: string[];
+        };
+        Returns: string;
+      };
+      stop_location_session: { Args: { p_session_id: string }; Returns: undefined };
       unblock_user: { Args: { p_user_id: string }; Returns: undefined };
+      update_session_location: {
+        Args: {
+          p_accuracy_m?: number;
+          p_latitude: number;
+          p_longitude: number;
+          p_session_id: string;
+        };
+        Returns: string;
+      };
     };
     Enums: {
       app_role: "user" | "admin";
@@ -955,6 +1132,7 @@ export type Database = {
         "meetup" | "exhibition" | "cruise" | "track_day" | "workshop" | "charity" | "other";
       event_status: "scheduled" | "cancelled" | "removed";
       friendship_status: "pending" | "accepted";
+      location_purpose: "meetup" | "convoy" | "safety" | "other";
       offer_status: "active" | "paused";
       report_reason: "spam" | "offensive" | "fraud" | "dangerous_driving" | "privacy" | "other";
       report_status: "open" | "resolved" | "dismissed";
@@ -1080,6 +1258,7 @@ export const Constants = {
       event_kind: ["meetup", "exhibition", "cruise", "track_day", "workshop", "charity", "other"],
       event_status: ["scheduled", "cancelled", "removed"],
       friendship_status: ["pending", "accepted"],
+      location_purpose: ["meetup", "convoy", "safety", "other"],
       offer_status: ["active", "paused"],
       report_reason: ["spam", "offensive", "fraud", "dangerous_driving", "privacy", "other"],
       report_status: ["open", "resolved", "dismissed"],
