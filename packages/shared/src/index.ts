@@ -1,6 +1,7 @@
 export const APP_NAME = "Gearhead";
 
 export type { Database } from "./database.types";
+export * from "./community";
 export * from "./data-core";
 export * from "./events";
 export * from "./garage-data";
