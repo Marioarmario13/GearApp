@@ -10,4 +10,5 @@ export * from "./partner";
 export * from "./partner-data";
 export * from "./profile";
 export * from "./radar";
+export * from "./social-gps";
 export * from "./vehicle";
