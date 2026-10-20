@@ -925,6 +925,8 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: Database["public"]["Enums"]["app_role"];
       };
+      delete_my_account: { Args: { p_confirmation: string }; Returns: undefined };
+      export_my_data: { Args: Record<PropertyKey, never>; Returns: Json };
       get_business_credentials: {
         Args: { p_business_id: string };
         Returns: {
