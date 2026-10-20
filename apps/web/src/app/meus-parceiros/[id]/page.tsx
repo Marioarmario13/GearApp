@@ -23,7 +23,9 @@ import { BusinessStatusBadge, CredentialStatusBadge } from "@/components/partner
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { BusinessForm } from "../business-form";
+import { setBusinessLocationAction } from "@/app/actions/radar";
 import { CredentialUploader } from "./credential-uploader";
+import { LocationPicker } from "./location-picker";
 
 export const metadata: Metadata = { title: "Estabelecimento — Gearhead" };
 
@@ -149,6 +151,20 @@ async function MyBusiness({ params }: { params: Promise<{ id: string }> }) {
           action={uploadCredentialAction.bind(null, business.id)}
           specialties={specialties}
           hasRegistration={hasRegistration}
+        />
+      </section>
+
+      <section aria-labelledby="mapa" className="rounded-2xl border border-line bg-surface p-6">
+        <h2 id="mapa" className="mb-4 text-xl font-semibold">
+          Localização no mapa
+        </h2>
+        <LocationPicker
+          action={setBusinessLocationAction.bind(null, business.id)}
+          initial={
+            business.latitude !== null && business.longitude !== null
+              ? { latitude: business.latitude, longitude: business.longitude }
+              : null
+          }
         />
       </section>
 

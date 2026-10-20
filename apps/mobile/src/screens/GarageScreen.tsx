@@ -61,8 +61,11 @@ export function GarageScreen() {
       <View style={styles.toolbar}>
         <Button onPress={() => router.push("/veiculo/novo")}>Adicionar veículo</Button>
         <View style={styles.links}>
+          <Link href="/radar" style={styles.link} accessibilityRole="link">
+            Radar
+          </Link>
           <Link href="/parceiros" style={styles.link} accessibilityRole="link">
-            Parceiros verificados
+            Parceiros
           </Link>
           <Link href="/conta" style={styles.link} accessibilityRole="link">
             Minha conta

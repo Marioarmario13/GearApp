@@ -57,10 +57,14 @@ Legenda: ✅ concluído · 🟡 em andamento · ⬜ pendente
 
 **Portão:** parceiro pendente não aparece como verificado; administração protegida.
 
-## Etapa 5 — Radar ⬜
+## Etapa 5 — Radar ✅
 
-- [ ] Comparar provedores de mapa (limites, termos, custo) e registrar decisão.
-- [ ] Consultas por raio com PostGIS, indexadas e paginadas; lista + mapa + filtros.
+- [x] Comparar provedores de mapa (limites, termos, custo) e registrar decisão — [`docs/MAPS.md`](./MAPS.md): OpenFreeMap + MapLibre; Google/Mapbox/MapTiler/OSM tiles rejeitados (faturamento, uso comercial ou política de uso).
+- [x] Consultas por raio com PostGIS (`ST_DWithin`, índice GiST parcial verificado por EXPLAIN), raio ≤100 km e ≤50 resultados; lista + mapa + filtros (tipo, especialidade, raio).
+- [x] Pin manual do estabelecimento no mapa (sem geocodificação externa), auditado.
+- [x] Web `/radar` e mapa na página do parceiro; app com tela Radar (WebView, Expo Go) e mapa no detalhe.
+- [x] 26 testes pgTAP novos (144 no total) + 4 de integração + verificação no navegador.
+- Pendente: testar o mapa e a permissão de localização num celular real; agrupamento de marcadores quando houver muitos parceiros; avaliar busca por cidade → coordenada (exigiria geocodificação com cache/proxy).
 
 **Portão:** filtros funcionam; buscas usam consultas limitadas e indexadas.
 

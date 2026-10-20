@@ -6,13 +6,13 @@ Instruções permanentes para o Claude Code neste repositório. Revisar e atuali
 
 Plataforma Gearhead (Brasil): site + painel (Next.js) e app Android/iOS (Expo). Diretório de profissionais verificados, garagem virtual, radar (PostGIS), eventos, ofertas, comunidade e, depois, GPS social com consentimento. Requisitos em `docs/PRODUCT_REQUIREMENTS.md`; etapas e portões em `docs/ROADMAP.md`.
 
-**Etapa atual:** 4 concluída (parceiros, credenciais, aprovação admin auditada) → próxima: Etapa 5 (Radar: comparar provedores de mapa antes de codar).
+**Etapa atual:** 5 concluída (radar: PostGIS, MapLibre + OpenFreeMap no site e no app) → próxima: Etapa 6 (Eventos e benefícios).
 
 ## Estrutura
 
 - `apps/web` — `@gearhead/web`, Next.js 16 App Router, Tailwind 4, Vitest + Testing Library. Código em `src/`, alias `@/*`.
 - `apps/mobile` — `@gearhead/mobile`, Expo SDK 58, React Native 0.88, **Expo Router** (rotas em `src/app/`, telas em `src/screens/`, alias `@/*` → `src/`), Jest (`jest-expo`) + `@testing-library/react-native` 14.
-- `packages/shared` — `@gearhead/shared`, Zod 4, regras puras, tipos gerados do banco (`database.types.ts`, via `npm run db:types` — nunca editar à mão) e camada de dados compartilhada (`data-core.ts` com erros/helpers, `garage-data.ts`, `partner-data.ts`: funções que recebem o cliente Supabase do chamador). Consumido como fonte TS (sem build). Web usa `transpilePackages`.
+- `packages/shared` — `@gearhead/shared`, Zod 4, regras puras, tipos gerados do banco (`database.types.ts`, via `npm run db:types` — nunca editar à mão) e camada de dados compartilhada (`data-core.ts` com erros/helpers, `garage-data.ts`, `partner-data.ts`, `radar.ts`: funções que recebem o cliente Supabase do chamador). Consumido como fonte TS (sem build). Web usa `transpilePackages`.
 - `supabase/` — `config.toml`, `migrations/` (SQL versionado), `seed.sql` (fictício), `tests/database/*.test.sql` (pgTAP).
 - `docs/` — documentação permanente.
 
@@ -29,8 +29,12 @@ Plataforma Gearhead (Brasil): site + painel (Next.js) e app Android/iOS (Expo). 
 - Excluir veículo: remover arquivos do Storage **antes** da linha (SQL não apaga objetos do Storage; `deleteVehicle` já faz isso).
 - Parceiros: nascem `pending`; só `review_business()` (admin) muda status, e aprovar **exige** credencial `business_registration` aprovada. Mudar nome/tipo de parceiro aprovado volta para `pending`. Ações admin gravam `audit_logs` via `private.audit()`. Documentos no bucket privado `business-documents` (dono + admin); arquivo de credencial aprovada não pode ser apagado pelo dono. Nota de revisão e caminho do documento só via RPCs `get_business_review`/`get_business_credentials`.
 - Erros de regra de negócio no SQL: `raise ... using errcode = 'GH001'` com mensagem pt-BR; `dataErrorMessage()` exibe direto.
+- Funções `security invoker` que leem colunas sem grant (ex.: `location`) falham com 42501 para o cliente: use `security definer` com filtros explícitos (ex.: `status = 'approved'`).
 - **Policies nunca podem referenciar colunas sem grant para o papel** (ex.: `credentials.document_path`): o Postgres checa permissões de todas as policies ao planejar e o erro 42501 quebra operações não relacionadas (aconteceu com deletes do Storage). Use função `security definer` em `private`.
-- Web: rotas `/parceiros` (público), `/meus-parceiros` (dono), `/admin` (admin; `requireAdmin()` devolve 404 a não-admins). Uploads via Server Action (`bodySizeLimit` 10.5mb em `next.config.ts`). Mobile: `expo-image-picker` + `expo-image-manipulator` (converte para JPEG ≤1600 px).
+- Radar: decisão de provedor em `docs/MAPS.md` (OpenFreeMap + MapLibre GL JS; trocar de provedor = trocar `NEXT_PUBLIC_MAP_STYLE_URL`/`EXPO_PUBLIC_MAP_STYLE_URL`). **Nunca remover a atribuição do mapa.** `businesses.location` (`geography`) não tem grant: escrita só por `set_business_location()` (dono, auditado), leitura por `latitude`/`longitude` (colunas geradas). Busca por `search_nearby_businesses()` (security definer, só aprovados, raio ≤100 km, ≤50 resultados, índice GiST parcial). Posição do usuário: pedida só por ação explícita, arredondada com `coarsenCoordinate()` (~1 km) antes de sair do aparelho, nunca armazenada.
+- Web: MapLibre v6 é ESM e o worker é copiado para `public/vendor/` por `apps/web/scripts/copy-maplibre-worker.mjs` (roda em `predev`/`prebuild`; pasta no .gitignore) + `setWorkerUrl`. Componente `MapView` só no cliente via `LazyMapView` (`next/dynamic`, `ssr: false`).
+- Mobile: mapa = MapLibre v5 UMD (CDN unpkg com SRI) dentro de `react-native-webview` (`src/lib/map-html.ts`, `src/components/MapWebView.tsx`); roda no Expo Go. Ao trocar a versão do MapLibre, recalcular os hashes SRI. Localização: `expo-location` com `Accuracy.Low`, só em primeiro plano.
+- Web: rotas `/parceiros` (público), `/radar` (público), `/meus-parceiros` (dono), `/admin` (admin; `requireAdmin()` devolve 404 a não-admins). Uploads via Server Action (`bodySizeLimit` 10.5mb em `next.config.ts`). Mobile: `expo-image-picker` + `expo-image-manipulator` (converte para JPEG ≤1600 px).
 
 ## Comandos (raiz)
 
@@ -66,6 +70,8 @@ Dependências: `npm install <pkg> -w <workspace>`. No mobile, use `npx expo inst
 - Testes do mobile: mockar `@/lib/supabase` com `src/test-utils/supabase-mock.ts`; `expo-router` e `@/auth/AuthProvider` são mockados por arquivo.
 - Next 16 mantém páginas anteriores ocultas no DOM (preservação de estado): em testes de navegador, filtre elementos visíveis.
 - Navegador embutido com a janela do app minimizada: `requestAnimationFrame` não dispara e o React não revela conteúdo de `<Suspense>` (fica no fallback). Contorno para testes: substituir `requestAnimationFrame` por `setTimeout` na página e navegar com `window.next.router.push()` (sem recarregar).
+- `react-native-webview`: tipos declaram `WebView<P = undefined>` (vira `props: never` no TS estrito) — usar `WebView<object>`. No Jest, o módulo nativo é mockado em `apps/mobile/jest.setup.tsx`.
+- `supabase db lint` limitado a `public,private` (o schema `extensions` do PostGIS tem avisos próprios).
 - TypeScript 6 no mobile: `types` padrão é vazio — tipos globais (ex.: `jest`) precisam estar em `compilerOptions.types`.
 
 ## Convenções

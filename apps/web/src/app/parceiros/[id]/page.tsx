@@ -1,6 +1,7 @@
 import {
   BUSINESS_KIND_LABELS,
   CREDENTIAL_TYPE_LABELS,
+  directionsUrl,
   formatPhone,
   formatPostalCode,
   getBusiness,
@@ -11,6 +12,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { LazyMapView } from "@/components/map/lazy-map";
 import { BusinessStatusBadge } from "@/components/partners";
 import { createClient } from "@/lib/supabase/server";
 
@@ -117,6 +119,37 @@ async function Partner({ params }: { params: Promise<{ id: string }> }) {
           )}
         </div>
       </section>
+
+      {business.latitude !== null && business.longitude !== null && (
+        <section aria-labelledby="mapa" className="flex flex-col gap-2">
+          <h2 id="mapa" className="text-lg font-semibold">
+            No mapa
+          </h2>
+          <LazyMapView
+            ariaLabel={`Localização de ${business.name}`}
+            center={{ latitude: business.latitude, longitude: business.longitude }}
+            zoom={15}
+            markers={[
+              {
+                id: business.id,
+                latitude: business.latitude,
+                longitude: business.longitude,
+                label: business.name,
+                highlighted: true,
+              },
+            ]}
+            className="h-64 w-full overflow-hidden rounded-xl border border-line"
+          />
+          <a
+            href={directionsUrl(business.latitude, business.longitude)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="self-start text-sm font-medium text-accent hover:underline"
+          >
+            Como chegar (OpenStreetMap) →
+          </a>
+        </section>
+      )}
 
       {business.specialties.length > 0 && (
         <section aria-labelledby="especialidades" className="flex flex-col gap-2">

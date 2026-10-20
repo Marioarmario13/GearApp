@@ -6,4 +6,5 @@ export * from "./garage-data";
 export * from "./partner";
 export * from "./partner-data";
 export * from "./profile";
+export * from "./radar";
 export * from "./vehicle";

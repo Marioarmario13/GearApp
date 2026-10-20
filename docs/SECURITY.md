@@ -40,6 +40,14 @@
 - Documentos em bucket privado; URLs assinadas de 5 min; evidência aprovada não pode ser apagada pelo dono.
 - Lição: uma policy do Storage referenciava coluna sem grant e fazia **todo** delete no Storage falhar — corrigido com função `security definer`; regra registrada no CLAUDE.md.
 
+## Controles implementados (Etapa 5 — radar)
+
+- Localização do usuário **desligada por padrão**: só é pedida quando ele toca em “usar minha localização” (web: Geolocation API com baixa precisão; app: `expo-location` `Accuracy.Low`, só em primeiro plano, sem permissão de segundo plano).
+- A posição é arredondada para ~1 km **no aparelho** antes de ir para a consulta, não é gravada e não alimenta histórico. Sem ela, o radar funciona pelo centro do mapa.
+- Localização do parceiro: escrita só pelo dono via RPC (coluna sem grant), restrita ao Brasil e auditada; coordenada bruta (`location`) não é exposta.
+- Busca por raio limitada no servidor (raio ≤100 km, ≤50 resultados) e só com parceiros aprovados.
+- Mapa: atribuição OpenStreetMap/OpenFreeMap sempre visível; no app, MapLibre por CDN com hash SRI; a WebView do mapa roda sem geolocalização e em modo anônimo.
+
 ### Pendências conhecidas
 
 - Confirmação de e-mail está desligada **apenas no ambiente local** (`enable_confirmations = false`); ligar em qualquer ambiente hospedado.
@@ -48,6 +56,7 @@
 - Metadados EXIF (inclusive GPS) de fotos enviadas pelo **web** não são removidos; o mobile reprocessa a imagem. Remover EXIF no servidor antes do piloto.
 - Arquivos órfãos no Storage (falha ao remover depois de apagar a linha) — limpeza periódica na Etapa 9.
 - **[JURÍDICO]** Retenção de documentos de parceiros (CNPJ/MEI podem conter dados pessoais de MEI): definir prazo e base legal; hoje, ao excluir o parceiro, os arquivos são apagados e a auditoria permanece.
+- Mapas: a instância pública da OpenFreeMap não tem SLA; seguir o plano de saída de `docs/MAPS.md` se necessário. O app baixa o MapLibre do unpkg (SRI protege a integridade; disponibilidade depende do CDN).
 - Telefone/e-mail de parceiros são públicos por escolha do dono; avaliar proteção contra raspagem (rate limit) antes do piloto.
 
 ## Localização (Etapas 5 e 8)

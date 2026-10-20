@@ -82,6 +82,9 @@ export type Database = {
           email: string | null;
           id: string;
           kind: Database["public"]["Enums"]["business_kind"];
+          latitude: number | null;
+          location: unknown;
+          longitude: number | null;
           name: string;
           owner_id: string;
           phone: string | null;
@@ -106,6 +109,9 @@ export type Database = {
           email?: string | null;
           id?: string;
           kind: Database["public"]["Enums"]["business_kind"];
+          latitude?: never;
+          location?: unknown;
+          longitude?: never;
           name: string;
           owner_id?: string;
           phone?: string | null;
@@ -129,6 +135,9 @@ export type Database = {
           email?: string | null;
           id?: string;
           kind?: Database["public"]["Enums"]["business_kind"];
+          latitude?: never;
+          location?: unknown;
+          longitude?: never;
           name?: string;
           owner_id?: string;
           phone?: string | null;
@@ -441,6 +450,31 @@ export type Database = {
           p_decision: Database["public"]["Enums"]["credential_status"];
           p_note?: string;
         };
+        Returns: undefined;
+      };
+      search_nearby_businesses: {
+        Args: {
+          p_kind?: Database["public"]["Enums"]["business_kind"];
+          p_latitude: number;
+          p_limit?: number;
+          p_longitude: number;
+          p_radius_km?: number;
+          p_specialty?: string;
+        };
+        Returns: {
+          city: string;
+          distance_m: number;
+          id: string;
+          kind: Database["public"]["Enums"]["business_kind"];
+          latitude: number;
+          longitude: number;
+          name: string;
+          specialty_ids: string[];
+          state: string;
+        }[];
+      };
+      set_business_location: {
+        Args: { p_business_id: string; p_latitude?: number; p_longitude?: number };
         Returns: undefined;
       };
       set_user_role: {

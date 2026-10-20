@@ -19,6 +19,9 @@ export function SiteHeader() {
           <Link href="/parceiros" className={linkClass}>
             Parceiros
           </Link>
+          <Link href="/radar" className={linkClass}>
+            Radar
+          </Link>
         </div>
         {/* A sessão é lida por requisição; o restante do cabeçalho é estático. */}
         <Suspense fallback={<span className="h-9" aria-hidden />}>

@@ -2,6 +2,7 @@ import {
   BUSINESS_KIND_LABELS,
   CREDENTIAL_TYPE_LABELS,
   dataErrorMessage,
+  directionsUrl,
   formatPhone,
   getBusiness,
   isExpired,
@@ -11,6 +12,7 @@ import {
 import { Stack } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, View } from "react-native";
+import { MapWebView } from "@/components/MapWebView";
 import { Button, Card, colors, Message } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 
@@ -88,6 +90,35 @@ export function PartnerScreen({ id }: { id: string }) {
         ) : null}
         {!business.phone && <Text style={styles.muted}>Sem telefone informado.</Text>}
       </Card>
+
+      {business.latitude !== null && business.longitude !== null && (
+        <View style={{ gap: 8 }}>
+          <MapWebView
+            accessibilityLabel={`Localização de ${business.name}`}
+            state={{
+              center: { latitude: business.latitude, longitude: business.longitude },
+              zoom: 15,
+              markers: [
+                {
+                  id: business.id,
+                  latitude: business.latitude,
+                  longitude: business.longitude,
+                  highlighted: true,
+                },
+              ],
+            }}
+            style={{ height: 220 }}
+          />
+          <Button
+            variant="secondary"
+            onPress={() =>
+              void Linking.openURL(directionsUrl(business.latitude!, business.longitude!))
+            }
+          >
+            Como chegar
+          </Button>
+        </View>
+      )}
 
       {business.specialties.length > 0 && (
         <View style={{ gap: 6 }}>

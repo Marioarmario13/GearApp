@@ -91,3 +91,11 @@ select '11111111-1111-4111-8111-111111111111', 'business.approved', 'business',
 where not exists (
   select 1 from public.audit_logs where entity_id = '33333333-3333-4333-8333-333333333331'
 );
+
+-- Localização fictícia dos parceiros do seed (Etapa 5) — região central de Curitiba.
+update public.businesses
+   set location = extensions.st_setsrid(extensions.st_makepoint(-49.2733, -25.4284), 4326)::extensions.geography
+ where id = '33333333-3333-4333-8333-333333333331' and location is null;
+update public.businesses
+   set location = extensions.st_setsrid(extensions.st_makepoint(-49.2900, -25.4400), 4326)::extensions.geography
+ where id = '33333333-3333-4333-8333-333333333332' and location is null;

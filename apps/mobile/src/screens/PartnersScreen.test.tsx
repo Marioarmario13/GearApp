@@ -34,6 +34,8 @@ const business: Business = {
   city: "Curitiba",
   state: "PR",
   postal_code: null,
+  latitude: -25.4284,
+  longitude: -49.2733,
   status: "approved",
   reviewed_at: "2026-10-20T12:00:00Z",
   created_at: "2026-10-01T00:00:00Z",

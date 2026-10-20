@@ -8,3 +8,4 @@ coverage
 next-env.d.ts
 apps/web/AGENTS.md
 apps/mobile/AGENTS.md
+apps/web/public/vendor

@@ -1,6 +1,6 @@
 # Modelo de Dados — Gearhead
 
-> Status: `profiles` (Etapa 2), garagem (Etapa 3) e parceiros (Etapa 4) **implementados**; demais tabelas são rascunho conceitual. Cada tabela só entra no banco via migração versionada, na etapa em que for realmente necessária.
+> Status: `profiles` (Etapa 2), garagem (Etapa 3), parceiros (Etapa 4) e radar (Etapa 5) **implementados**; demais tabelas são rascunho conceitual. Cada tabela só entra no banco via migração versionada, na etapa em que for realmente necessária.
 
 ## Implementado
 
@@ -82,3 +82,10 @@ Grants: público lê colunas sem `review_note`/`reviewed_by`; dono insere/atuali
 **RPCs**: `get_business_review(id)` e `get_business_credentials(id)` (dono/admin); `review_credential(id, decisão, nota)` e `review_business(id, decisão, nota)` (admin; motivo obrigatório para recusar/suspender; aprovar exige registro conferido; recusar o registro de um aprovado o devolve para `pending`).
 
 **Storage `business-documents`**: privado, 10 MB, PDF/JPG/PNG/WebP. Upload na pasta do próprio parceiro; leitura dono ou admin; exclusão pelo dono só de arquivos sem credencial aprovada (`private.is_approved_document`).
+
+### Radar — `supabase/migrations/20261022000100_radar.sql`
+
+- Extensão `postgis` no schema `extensions`.
+- `businesses.location geography(Point, 4326)` (constraint: dentro da caixa aproximada do Brasil) + colunas geradas `latitude`/`longitude` (legíveis). Índice GiST parcial `businesses_location_gist` (`where status = 'approved'`).
+- `set_business_location(id, lat, lng)`: só o dono; `null` remove; arredonda para ~1 m; grava `business.location_changed` na auditoria.
+- `search_nearby_businesses(lat, lng, raio_km, tipo, especialidade, limite)`: pública (anon/autenticado), security definer com filtro `status = 'approved'`, raio 1–100 km, máximo de 50 resultados, ordenada por distância; devolve `distance_m` e `specialty_ids`.

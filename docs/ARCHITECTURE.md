@@ -1,6 +1,6 @@
 # Arquitetura — Gearhead
 
-> Status: Etapa 4 (parceiros e certificações). Atualizar sempre que a implementação mudar.
+> Status: Etapa 5 (radar). Atualizar sempre que a implementação mudar.
 
 ## Visão geral
 
@@ -29,16 +29,16 @@
 
 ## Decisões
 
-| #   | Decisão                                                          | Motivo                                                                                                           | Alternativas descartadas                                                |
-| --- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| D1  | Monorepo com **npm workspaces**                                  | Já vem com o Node; sem ferramenta extra; compatível com Expo/Metro sem configurações especiais de symlink.       | pnpm (exige `node-linker=hoisted` para Expo), Turborepo/Nx (prematuro). |
-| D2  | **Next.js (App Router) + TypeScript** em `apps/web`              | Site indexável e painel admin na mesma aplicação.                                                                | Vite SPA (pior SEO).                                                    |
-| D3  | **Expo + TypeScript** em `apps/mobile`                           | Uma base Android/iOS; Expo Go para testes locais sem custo.                                                      | React Native CLI puro (mais configuração nativa).                       |
-| D4  | **`packages/shared`** com Zod e regras puras                     | Mesma validação no cliente e no servidor; regras testáveis sem UI. O servidor continua sendo a fonte da verdade. | Duplicar validação por app.                                             |
-| D5  | **Supabase** (Postgres + PostGIS + Auth + Storage)               | Free tier + execução local via Docker para testes de banco/RLS.                                                  | Backend próprio (mais infraestrutura).                                  |
-| D6  | **Vitest** em `shared` e `web`; **Jest (jest-expo)** em `mobile` | Vitest é rápido para TS puro; jest-expo é o caminho oficial para RN.                                             | Um único runner para tudo (RN com Vitest não é suportado oficialmente). |
-| D7  | ESLint por workspace (flat config) + **Prettier** na raiz        | Cada framework tem preset próprio (next, expo); formatação única.                                                | —                                                                       |
-| D8  | Provedor de mapas **ainda não escolhido**                        | Prompt exige comparar limites/termos/custos antes (Etapa 5).                                                     | —                                                                       |
+| #   | Decisão                                                               | Motivo                                                                                                                          | Alternativas descartadas                                                |
+| --- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| D1  | Monorepo com **npm workspaces**                                       | Já vem com o Node; sem ferramenta extra; compatível com Expo/Metro sem configurações especiais de symlink.                      | pnpm (exige `node-linker=hoisted` para Expo), Turborepo/Nx (prematuro). |
+| D2  | **Next.js (App Router) + TypeScript** em `apps/web`                   | Site indexável e painel admin na mesma aplicação.                                                                               | Vite SPA (pior SEO).                                                    |
+| D3  | **Expo + TypeScript** em `apps/mobile`                                | Uma base Android/iOS; Expo Go para testes locais sem custo.                                                                     | React Native CLI puro (mais configuração nativa).                       |
+| D4  | **`packages/shared`** com Zod e regras puras                          | Mesma validação no cliente e no servidor; regras testáveis sem UI. O servidor continua sendo a fonte da verdade.                | Duplicar validação por app.                                             |
+| D5  | **Supabase** (Postgres + PostGIS + Auth + Storage)                    | Free tier + execução local via Docker para testes de banco/RLS.                                                                 | Backend próprio (mais infraestrutura).                                  |
+| D6  | **Vitest** em `shared` e `web`; **Jest (jest-expo)** em `mobile`      | Vitest é rápido para TS puro; jest-expo é o caminho oficial para RN.                                                            | Um único runner para tudo (RN com Vitest não é suportado oficialmente). |
+| D7  | ESLint por workspace (flat config) + **Prettier** na raiz             | Cada framework tem preset próprio (next, expo); formatação única.                                                               | —                                                                       |
+| D8  | Mapas: **OpenFreeMap + MapLibre GL JS** (web direto; app via WebView) | Sem chave, sem faturamento, uso comercial permitido, roda no Expo Go; provedor trocável pela URL do estilo. Ver `docs/MAPS.md`. | Google Maps, Mapbox, MapTiler Free, tiles do OSM.                       |
 
 ## Camadas
 
@@ -92,3 +92,17 @@ Público ► /parceiros (site) e app ──► só businesses approved + credent
 - Camada de dados em `packages/shared/src/partner-data.ts`; base comum (erros, URLs assinadas) em `data-core.ts`.
 - Regras críticas ficam no banco (triggers e RPCs `security definer`); a UI só reflete. Erros de regra usam SQLSTATE `GH001` com mensagem pt-BR.
 - Mobile: diretório e detalhe somente leitura; cadastro e conferência pelo site.
+
+## Radar (Etapa 5)
+
+```
+Usuário ──(toca "usar minha localização")──► posição arredondada (~1 km) no aparelho
+   └─► web: Server Action searchRadarAction ─┐
+   └─► app: supabase.rpc direto ─────────────┴─► search_nearby_businesses() ─► PostGIS (GiST)
+Mapa: MapLibre GL JS + tiles OpenFreeMap (web: componente MapView; app: WebView com o mesmo estilo)
+Dono ─► pin no mapa ─► set_business_location() ─► businesses.location (+ auditoria)
+```
+
+- Lógica e tipos em `packages/shared/src/radar.ts` (`searchNearby`, `setBusinessLocation`, `coarsenCoordinate`, `formatDistance`).
+- Web: `src/components/map/` (`MapView` + `LazyMapView`), `/radar`, mapa na página do parceiro e seletor de pin em `/meus-parceiros/[id]`.
+- Mobile: `src/screens/RadarScreen.tsx`, `src/components/MapWebView.tsx`, `src/lib/map-html.ts`, `src/lib/location.ts`.

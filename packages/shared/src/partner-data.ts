@@ -46,6 +46,9 @@ export interface Business {
   city: string;
   state: BrazilState;
   postal_code: string | null;
+  /** Definidas pelo dono (pin no mapa); null enquanto não posicionado. */
+  latitude: number | null;
+  longitude: number | null;
   status: BusinessStatus;
   reviewed_at: string | null;
   created_at: string;
@@ -85,7 +88,7 @@ export interface BusinessReview {
 }
 
 const BUSINESS_COLUMNS =
-  "id, owner_id, kind, name, description, phone, phone_is_whatsapp, email, website, street, street_number, district, city, state, postal_code, status, reviewed_at, created_at, updated_at, specialties:business_specialties(specialty:specialties(id, name))";
+  "id, owner_id, kind, name, description, phone, phone_is_whatsapp, email, website, street, street_number, district, city, state, postal_code, latitude, longitude, status, reviewed_at, created_at, updated_at, specialties:business_specialties(specialty:specialties(id, name))";
 
 const CREDENTIAL_COLUMNS =
   "id, type, title, issuer, specialty_id, issued_on, expires_on, status, reviewed_at";

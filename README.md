@@ -2,7 +2,7 @@
 
 Plataforma brasileira para entusiastas automotivos: garagem virtual, diretório de profissionais verificados, radar geográfico, eventos, benefícios de parceiros e comunidade. Site responsivo + painel (Next.js) e app Android/iOS (Expo).
 
-> Status: **Etapa 4 — parceiros e certificações** concluída (diretório público, cadastro de estabelecimentos, documentos privados e aprovação administrativa auditada). Veja [`docs/ROADMAP.md`](docs/ROADMAP.md).
+> Status: **Etapa 5 — radar** concluída (busca por raio com PostGIS e mapa MapLibre + OpenFreeMap no site e no app, sem chaves nem custos). Veja [`docs/ROADMAP.md`](docs/ROADMAP.md) e a decisão de mapas em [`docs/MAPS.md`](docs/MAPS.md).
 
 ## Estrutura
 
@@ -72,3 +72,4 @@ O projeto usa apenas ferramentas gratuitas e execução local. Planos gratuitos 
 - [Modelo de dados](docs/DATA_MODEL.md)
 - [Segurança e privacidade](docs/SECURITY.md)
 - [Roadmap e backlog](docs/ROADMAP.md)
+- [Mapas: comparação de provedores e decisão](docs/MAPS.md)
