@@ -42,6 +42,40 @@ export type Database = {
           },
         ];
       };
+      blocks: {
+        Row: {
+          blocked_id: string;
+          blocker_id: string;
+          created_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          blocked_id: string;
+          blocker_id: string;
+          created_at?: string;
+        };
+        Update: {
+          blocked_id?: string;
+          blocker_id?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "blocks_blocked_id_fkey";
+            columns: ["blocked_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "blocks_blocker_id_fkey";
+            columns: ["blocker_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       business_specialties: {
         Row: {
           business_id: string;
@@ -421,6 +455,49 @@ export type Database = {
           },
         ];
       };
+      friendships: {
+        Row: {
+          addressee_id: string;
+          created_at: string;
+          id: string;
+          requester_id: string;
+          responded_at: string | null;
+          status: Database["public"]["Enums"]["friendship_status"];
+        };
+        ComputedFields: never;
+        Insert: {
+          addressee_id: string;
+          created_at?: string;
+          id?: string;
+          requester_id: string;
+          responded_at?: string | null;
+          status?: Database["public"]["Enums"]["friendship_status"];
+        };
+        Update: {
+          addressee_id?: string;
+          created_at?: string;
+          id?: string;
+          requester_id?: string;
+          responded_at?: string | null;
+          status?: Database["public"]["Enums"]["friendship_status"];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "friendships_addressee_id_fkey";
+            columns: ["addressee_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "friendships_requester_id_fkey";
+            columns: ["requester_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       offers: {
         Row: {
           business_id: string;
@@ -517,6 +594,64 @@ export type Database = {
           username?: string | null;
         };
         Relationships: [];
+      };
+      reports: {
+        Row: {
+          created_at: string;
+          details: string | null;
+          id: string;
+          reason: Database["public"]["Enums"]["report_reason"];
+          reporter_id: string;
+          resolution_note: string | null;
+          resolved_at: string | null;
+          resolved_by: string | null;
+          status: Database["public"]["Enums"]["report_status"];
+          target_id: string;
+          target_type: Database["public"]["Enums"]["report_target"];
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          reason: Database["public"]["Enums"]["report_reason"];
+          reporter_id?: string;
+          resolution_note?: string | null;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+          status?: Database["public"]["Enums"]["report_status"];
+          target_id: string;
+          target_type: Database["public"]["Enums"]["report_target"];
+        };
+        Update: {
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          reason?: Database["public"]["Enums"]["report_reason"];
+          reporter_id?: string;
+          resolution_note?: string | null;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+          status?: Database["public"]["Enums"]["report_status"];
+          target_id?: string;
+          target_type?: Database["public"]["Enums"]["report_target"];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "reports_reporter_id_fkey";
+            columns: ["reporter_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reports_resolved_by_fkey";
+            columns: ["resolved_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       specialties: {
         Row: {
@@ -644,6 +779,22 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      admin_list_reports: {
+        Args: { p_limit?: number; p_status?: Database["public"]["Enums"]["report_status"] };
+        Returns: {
+          created_at: string;
+          details: string;
+          id: string;
+          reason: Database["public"]["Enums"]["report_reason"];
+          reporter_username: string;
+          resolution_note: string;
+          same_target_open: number;
+          status: Database["public"]["Enums"]["report_status"];
+          target_id: string;
+          target_type: Database["public"]["Enums"]["report_target"];
+        }[];
+      };
+      block_user: { Args: { p_user_id: string }; Returns: undefined };
       cancel_coupon: { Args: { p_coupon_id: string }; Returns: undefined };
       cancel_event: { Args: { p_event_id: string; p_note?: string }; Returns: undefined };
       claim_offer: {
@@ -692,6 +843,28 @@ export type Database = {
           username: string;
         }[];
       };
+      moderate_hide_vehicle: { Args: { p_note: string; p_vehicle_id: string }; Returns: undefined };
+      my_blocks: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          blocked_at: string;
+          display_name: string;
+          user_id: string;
+          username: string;
+        }[];
+      };
+      my_friendships: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          created_at: string;
+          display_name: string;
+          friendship_id: string;
+          incoming: boolean;
+          other_id: string;
+          status: Database["public"]["Enums"]["friendship_status"];
+          username: string;
+        }[];
+      };
       redeem_coupon: {
         Args: { p_code: string };
         Returns: {
@@ -702,6 +875,18 @@ export type Database = {
         }[];
       };
       remove_event: { Args: { p_event_id: string; p_note: string }; Returns: undefined };
+      resolve_report: {
+        Args: {
+          p_note?: string;
+          p_report_id: string;
+          p_status: Database["public"]["Enums"]["report_status"];
+        };
+        Returns: undefined;
+      };
+      respond_friend_request: {
+        Args: { p_accept: boolean; p_friendship_id: string };
+        Returns: undefined;
+      };
       review_business: {
         Args: {
           p_business_id: string;
@@ -740,6 +925,10 @@ export type Database = {
           state: string;
         }[];
       };
+      send_friend_request: {
+        Args: { p_user_id: string };
+        Returns: Database["public"]["Enums"]["friendship_status"];
+      };
       set_business_location: {
         Args: { p_business_id: string; p_latitude?: number; p_longitude?: number };
         Returns: undefined;
@@ -752,6 +941,7 @@ export type Database = {
         Args: { new_role: Database["public"]["Enums"]["app_role"]; target_user_id: string };
         Returns: undefined;
       };
+      unblock_user: { Args: { p_user_id: string }; Returns: undefined };
     };
     Enums: {
       app_role: "user" | "admin";
@@ -764,7 +954,11 @@ export type Database = {
       event_kind:
         "meetup" | "exhibition" | "cruise" | "track_day" | "workshop" | "charity" | "other";
       event_status: "scheduled" | "cancelled" | "removed";
+      friendship_status: "pending" | "accepted";
       offer_status: "active" | "paused";
+      report_reason: "spam" | "offensive" | "fraud" | "dangerous_driving" | "privacy" | "other";
+      report_status: "open" | "resolved" | "dismissed";
+      report_target: "profile" | "vehicle" | "business" | "event" | "offer";
       vehicle_visibility: "public" | "private";
     };
     CompositeTypes: {
@@ -885,7 +1079,11 @@ export const Constants = {
       credential_type: ["business_registration", "certification", "training", "other"],
       event_kind: ["meetup", "exhibition", "cruise", "track_day", "workshop", "charity", "other"],
       event_status: ["scheduled", "cancelled", "removed"],
+      friendship_status: ["pending", "accepted"],
       offer_status: ["active", "paused"],
+      report_reason: ["spam", "offensive", "fraud", "dangerous_driving", "privacy", "other"],
+      report_status: ["open", "resolved", "dismissed"],
+      report_target: ["profile", "vehicle", "business", "event", "offer"],
       vehicle_visibility: ["public", "private"],
     },
   },
