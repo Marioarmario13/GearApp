@@ -2,7 +2,7 @@
 
 Plataforma brasileira para entusiastas automotivos: garagem virtual, diretório de profissionais verificados, radar geográfico, eventos, benefícios de parceiros e comunidade. Site responsivo + painel (Next.js) e app Android/iOS (Expo).
 
-> Status: **Etapa 1 — fundação técnica**. Ainda não há banco nem autenticação. Veja [`docs/ROADMAP.md`](docs/ROADMAP.md).
+> Status: **Etapa 2 — banco e autenticação** concluída (cadastro, login, perfil e RLS testada). Veja [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Estrutura
 
@@ -12,6 +12,7 @@ apps/
   mobile/    Expo / React Native — app Android e iOS
 packages/
   shared/    Schemas Zod, tipos e regras de domínio puras (usado por web e mobile)
+supabase/    Configuração local, migrações SQL, seed fictício e testes pgTAP
 docs/        Requisitos, arquitetura, modelo de dados, segurança, roadmap
 ```
 
@@ -19,26 +20,38 @@ docs/        Requisitos, arquitetura, modelo de dados, segurança, roadmap
 
 - Node.js 24 (ver `.nvmrc`; mínimo 22) e npm 11+
 - Para o app: [Expo Go](https://expo.dev/go) no celular, ou emulador Android/simulador iOS
-- Docker (a partir da Etapa 2, para o Supabase local)
+- Docker Desktop (para o Supabase local)
 
 ## Como rodar
 
 ```bash
 npm install          # instala todos os workspaces
+npm run db:start     # sobe o Supabase local (1ª vez baixa as imagens Docker)
+npm run db:status    # mostra a URL da API e a "Publishable key"
+```
+
+Crie `apps/web/.env.local` e `apps/mobile/.env.local` a partir do [`.env.example`](.env.example), usando a URL e a chave **publishable** exibidas acima. Depois:
+
+```bash
 npm run dev:web      # site em http://localhost:3000
 npm run dev:mobile   # Expo; escaneie o QR code com o Expo Go
 ```
 
+Usuários fictícios do seed: `admin@gearhead.test` (administrador) e `piloto@gearhead.test` — senha em [`supabase/seed.sql`](supabase/seed.sql). E-mails enviados localmente aparecem no Mailpit (http://127.0.0.1:54324); o Studio fica em http://127.0.0.1:54323.
+
 ## Verificações
 
-| Comando                | O que faz                                      |
-| ---------------------- | ---------------------------------------------- |
-| `npm run verify`       | Tudo abaixo, na ordem usada pelo CI            |
-| `npm run format:check` | Prettier (use `npm run format` para corrigir)  |
-| `npm run lint`         | ESLint em todos os workspaces                  |
-| `npm run typecheck`    | TypeScript strict em todos os workspaces       |
-| `npm run test`         | Vitest (shared, web) e Jest/jest-expo (mobile) |
-| `npm run build:web`    | Build de produção do site                      |
+| Comando                | O que faz                                        |
+| ---------------------- | ------------------------------------------------ |
+| `npm run verify`       | Tudo abaixo, na ordem usada pelo CI              |
+| `npm run format:check` | Prettier (use `npm run format` para corrigir)    |
+| `npm run lint`         | ESLint em todos os workspaces                    |
+| `npm run typecheck`    | TypeScript strict em todos os workspaces         |
+| `npm run test`         | Vitest (shared, web) e Jest/jest-expo (mobile)   |
+| `npm run build:web`    | Build de produção do site                        |
+| `npm run db:test`      | Testes pgTAP do banco (RLS, grants, constraints) |
+| `npm run db:lint`      | Lint do schema do banco                          |
+| `npm run db:reset`     | Recria o banco local (migrações + seed)          |
 
 Rodar em um workspace só: `npm run test -w @gearhead/shared`.
 

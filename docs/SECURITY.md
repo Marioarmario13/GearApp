@@ -11,6 +11,22 @@
 5. **Uploads restritos.** Buckets com limite de tamanho e MIME; documentos de credenciais em bucket privado.
 6. **Auditoria.** Ações administrativas registradas em `audit_logs` (Etapa 7).
 
+## Controles implementados (Etapa 2)
+
+- RLS habilitada em `profiles`; `auto_expose_new_tables = false` (grant explícito obrigatório).
+- Grants por coluna impedem cliente de ler/alterar `role` e `id`; troca de papel só via `set_user_role()` com verificação de admin no banco.
+- Funções `security definer` com `search_path = ''` e `EXECUTE` revogado de `public`/`anon`.
+- Senha mínima de 8 caracteres com letras e números (Supabase Auth + Zod).
+- Web: proxy só faz redirecionamento otimista; páginas e Server Actions revalidam o usuário (`getUser()`); `next` de login validado contra open redirect.
+- Erros do Auth/PostgREST traduzidos por código, sem expor mensagens internas.
+- Verificado: 26 testes pgTAP + checagens pela API REST (anon bloqueado; usuário comum não se promove nem edita perfil alheio).
+
+### Pendências conhecidas
+
+- Confirmação de e-mail está desligada **apenas no ambiente local** (`enable_confirmations = false`); ligar em qualquer ambiente hospedado.
+- Leitura de perfis está aberta a qualquer autenticado; revisar com bloqueios (Etapa 7) e privacidade de perfil.
+- Rate limiting e CAPTCHA de cadastro a definir antes do piloto (Etapa 9).
+
 ## Localização (Etapas 5 e 8)
 
 - Desligada por padrão; pedido de permissão contextual.

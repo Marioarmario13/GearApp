@@ -21,12 +21,14 @@ Legenda: ✅ concluído · 🟡 em andamento · ⬜ pendente
 
 **Portão:** `npm ci` reproduzível; `npm run verify` passa; README explica como rodar.
 
-## Etapa 2 — Banco e autenticação ⬜
+## Etapa 2 — Banco e autenticação ✅
 
-- [ ] Supabase CLI local (Docker); `supabase/migrations` versionadas.
-- [ ] Tabela `profiles` (1:1 com `auth.users`), trigger de criação, papel `role` não editável pelo usuário.
-- [ ] RLS + grants por operação; testes de acesso permitido/negado (pgTAP ou testes de integração).
-- [ ] Cadastro/login no web e mobile.
+- [x] Supabase CLI local (Docker); `supabase/migrations` versionadas.
+- [x] Tabela `profiles` (1:1 com `auth.users`), trigger de criação, papel `role` não editável pelo usuário.
+- [x] RLS + grants por operação/coluna; 26 testes pgTAP de acesso permitido/negado e escalonamento.
+- [x] Cadastro/login no web e mobile; edição de perfil no web.
+- [x] CI com job de banco (`db:lint` + `db:test`).
+- Pendente para etapas futuras: recuperação de senha, confirmação de e-mail em produção, edição de perfil e avatar no mobile (junto da Garagem).
 
 **Portão:** cadastro/login funcionam e testes comprovam acesso permitido e negado; usuário comum não vira admin.
 

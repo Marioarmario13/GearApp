@@ -27,3 +27,18 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run test
+
+  database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # Sobe só o Postgres local (Docker), aplica migrações + seed e roda os testes pgTAP.
+      - run: npx supabase db start
+      - run: npm run db:lint
+      - run: npm run db:test

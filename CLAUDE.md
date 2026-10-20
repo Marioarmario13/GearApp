@@ -6,14 +6,24 @@ Instruções permanentes para o Claude Code neste repositório. Revisar e atuali
 
 Plataforma Gearhead (Brasil): site + painel (Next.js) e app Android/iOS (Expo). Diretório de profissionais verificados, garagem virtual, radar (PostGIS), eventos, ofertas, comunidade e, depois, GPS social com consentimento. Requisitos em `docs/PRODUCT_REQUIREMENTS.md`; etapas e portões em `docs/ROADMAP.md`.
 
-**Etapa atual:** 1 concluída → próxima: Etapa 2 (Supabase local, migrações, `profiles`, auth, RLS testada).
+**Etapa atual:** 2 concluída (Supabase local, `profiles`, auth web/mobile, RLS testada) → próxima: Etapa 3 (Garagem).
 
 ## Estrutura
 
 - `apps/web` — `@gearhead/web`, Next.js 16 App Router, Tailwind 4, Vitest + Testing Library. Código em `src/`, alias `@/*`.
-- `apps/mobile` — `@gearhead/mobile`, Expo SDK 58, React Native 0.88, Jest (`jest-expo`) + `@testing-library/react-native` 14 (`render` é async → `await render(...)`).
+- `apps/mobile` — `@gearhead/mobile`, Expo SDK 58, React Native 0.88, Jest (`jest-expo`) + `@testing-library/react-native` 14.
 - `packages/shared` — `@gearhead/shared`, Zod 4 + regras puras; consumido como fonte TS (sem build). Web usa `transpilePackages`.
+- `supabase/` — `config.toml`, `migrations/` (SQL versionado), `seed.sql` (fictício), `tests/database/*.test.sql` (pgTAP).
 - `docs/` — documentação permanente.
+
+## Auth e acesso a dados
+
+- Web: `src/proxy.ts` renova a sessão (cookies, `@supabase/ssr`) e faz redirecionamentos otimistas; **autorização real** em `src/lib/auth.ts` (`getCurrentUser`/`requireUser`, via `getUser()`) + RLS. Toda Server Action chama `requireUser()` de novo.
+- Web: `src/lib/supabase/server.ts` chama `await connection()` antes de criar o cliente — obrigatório com Cache Components (o SDK usa `Date.now()`). Componentes que leem sessão ficam dentro de `<Suspense>`.
+- Mobile: `src/lib/supabase.ts` (sessão em `expo-sqlite/localStorage`, auto-refresh por `AppState`). Testes de UI mockam esse módulo.
+- `profiles.role` não é legível nem editável pelo cliente: grants por coluna. Papel do usuário atual via RPC `current_user_role()`; troca de papel só por `set_user_role()` (admin). Selecione colunas explícitas — `select=*`/`return=representation` em `profiles` falha (42501) por causa de `role`.
+- `auto_expose_new_tables = false`: toda tabela nova precisa de `grant` explícito na migração, além de RLS e policies por operação.
+- Helpers internos de RLS ficam no schema `private` (não exposto pela API).
 
 ## Comandos (raiz)
 
@@ -25,7 +35,15 @@ npm run dev:mobile    # Expo
 npm run build:web
 npm run format        # corrige formatação
 npm run test -w @gearhead/shared   # um workspace
+npm run db:start      # Supabase local (Docker Desktop precisa estar aberto)
+npm run db:test       # testes pgTAP (RLS, grants, constraints)
+npm run db:lint       # lint do schema
+npm run db:reset      # recria o banco local: migrações + seed (APAGA dados locais)
+npm run db:new <nome> # nova migração
+npm run db:status     # URLs e chaves locais
 ```
+
+Usuários do seed (local): `admin@gearhead.test` e `piloto@gearhead.test` — senha em `supabase/seed.sql`.
 
 Dependências: `npm install <pkg> -w <workspace>`. No mobile, use `npx expo install <pkg>` dentro de `apps/mobile` (resolve versões compatíveis com o SDK) e confira com `npx expo install --check`.
 
@@ -33,6 +51,7 @@ Dependências: `npm install <pkg> -w <workspace>`. No mobile, use `npx expo inst
 
 - Next.js 16: ler `node_modules/next/dist/docs/` antes de usar APIs (ver `apps/web/AGENTS.md`). `next typegen` gera `LayoutProps`/`PageProps` (já incluído no `typecheck`).
 - Expo 58: consultar docs versionadas (ver `apps/mobile/AGENTS.md`).
+- `@testing-library/react-native` 14: `render` e `fireEvent` são async → sempre `await`.
 - TypeScript 6 no mobile: `types` padrão é vazio — tipos globais (ex.: `jest`) precisam estar em `compilerOptions.types`.
 
 ## Convenções
@@ -42,7 +61,7 @@ Dependências: `npm install <pkg> -w <workspace>`. No mobile, use `npx expo inst
 - Validação com Zod em `packages/shared`, mas **servidor/RLS é a fonte da verdade** — schema no cliente nunca é a única proteção.
 - Testes ao lado do código (`*.test.ts(x)`).
 - Prettier: `printWidth` 100, LF. ESLint por workspace (flat config).
-- Toda mudança de schema = migração versionada em `supabase/migrations` (a partir da Etapa 2). Seeds só com dados fictícios.
+- Toda mudança de schema = migração versionada em `supabase/migrations` + testes pgTAP cobrindo SELECT/INSERT/UPDATE/DELETE para anon, dono, não dono e admin. Seeds só com dados fictícios. Constraints do banco espelham os schemas Zod de `packages/shared`.
 
 ## Regras inegociáveis
 
@@ -60,4 +79,6 @@ Revisar diff → `npm run verify` → testes de banco/RLS (Etapa 2+) → regress
 
 - `npm install` bloqueia scripts de `unrs-resolver` e `@parcel/watcher` (política allowScripts do npm 12); lint e testes funcionam sem eles.
 - `npm audit --omit=dev` aponta vulnerabilidades transitivas na cadeia de ferramentas do Expo/Metro (`node-forge`, `braces`, `uuid`); Next.js sem achados. Acompanhar patches do Expo SDK; não usar `audit fix --force`. Revisar antes da publicação.
+- Mensagens de erro do Supabase passam por `authErrorMessage()` (shared) para não vazar detalhes internos na UI.
+- No celular físico com Expo Go, `EXPO_PUBLIC_SUPABASE_URL` precisa usar o IP da máquina na rede, não `127.0.0.1`.
 - ESLint 9 (versão gerada pelos templates). Os presets aceitam ESLint 10; migrar só após confirmar compatibilidade dos plugins.

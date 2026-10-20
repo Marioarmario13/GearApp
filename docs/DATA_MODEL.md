@@ -1,6 +1,26 @@
 # Modelo de Dados — Gearhead
 
-> Status: **rascunho conceitual** (Etapa 0). Nada aqui está implementado. Cada tabela só entra no banco via migração versionada, na etapa em que for realmente necessária.
+> Status: `profiles` **implementada** (Etapa 2); demais tabelas são rascunho conceitual. Cada tabela só entra no banco via migração versionada, na etapa em que for realmente necessária.
+
+## Implementado
+
+### `public.profiles` — `supabase/migrations/20261019000100_profiles.sql`
+
+| Coluna                     | Tipo                        | Regras                                                        |
+| -------------------------- | --------------------------- | ------------------------------------------------------------- |
+| `id`                       | `uuid` PK                   | FK `auth.users(id)` `on delete cascade`                       |
+| `username`                 | `text` unique, nulo         | `^[a-z0-9_]{3,30}$`                                           |
+| `display_name`             | `text`                      | 1–60 caracteres após trim                                     |
+| `city`                     | `text`                      | 1–80 caracteres                                               |
+| `state`                    | `char(2)`                   | UF brasileira válida                                          |
+| `avatar_url`               | `text`                      | até 500 caracteres (upload real na Etapa 3)                   |
+| `role`                     | `app_role` (`user`/`admin`) | padrão `user`; **sem grant de leitura/escrita para clientes** |
+| `created_at`, `updated_at` | `timestamptz`               | `updated_at` por trigger                                      |
+
+- Criado pelo trigger `on_auth_user_created` (`private.handle_new_user`): username/display_name vêm do metadata do cadastro; inválido ou duplicado vira `NULL` sem bloquear o cadastro.
+- Grants: `authenticated` → `SELECT` em colunas públicas, `UPDATE (username, display_name, city, state, avatar_url)`. `anon` → nada. Sem `INSERT`/`DELETE` para clientes.
+- Policies: `SELECT` para autenticados; `UPDATE` só onde `id = auth.uid()`.
+- RPCs: `current_user_role()` (próprio papel), `set_user_role(uuid, app_role)` (apenas admin). Helper `private.is_admin()`.
 
 ## Entidades previstas
 

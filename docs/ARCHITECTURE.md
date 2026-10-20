@@ -1,6 +1,6 @@
 # Arquitetura — Gearhead
 
-> Status: Etapa 1 (fundação). Atualizar sempre que a implementação mudar.
+> Status: Etapa 2 (banco e autenticação). Atualizar sempre que a implementação mudar.
 
 ## Visão geral
 
@@ -56,3 +56,18 @@
 ## Variáveis de ambiente
 
 Ver `.env.example` na raiz e em cada app. Somente chaves **públicas** (`NEXT_PUBLIC_*`, `EXPO_PUBLIC_*`) vão para o cliente. `service_role` nunca entra em código cliente.
+
+## Autenticação (Etapa 2)
+
+```
+Navegador ──► proxy.ts (renova cookies de sessão; redireciona /conta ↔ /entrar)
+          ──► Server Component / Server Action
+                └─ lib/auth.ts: requireUser() → supabase.auth.getUser()
+                └─ consultas com o JWT do usuário → Postgres aplica RLS + grants
+App mobile ──► supabase-js (sessão em expo-sqlite/localStorage) → mesma API, mesmas policies
+```
+
+- Web usa `@supabase/ssr` com cookies; mobile usa `@supabase/supabase-js` direto.
+- Ambos usam apenas a chave **publishable**. Nenhum código cliente usa `service_role`.
+- Rotas web: `/cadastro`, `/entrar`, `/conta` (protegida). Mobile: tela de login/cadastro e tela de conta (sem roteador ainda; Expo Router entra quando houver mais telas).
+- Testes: pgTAP (`supabase/tests/database`) cobre o banco; Vitest cobre helpers web/shared; Jest cobre telas do mobile com o cliente Supabase mockado; fluxo web completo validado manualmente no navegador contra o Supabase local.
