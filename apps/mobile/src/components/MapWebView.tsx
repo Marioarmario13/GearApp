@@ -1,3 +1,4 @@
+import { clusterPoints, CLUSTER_ID_PREFIX } from "@gearhead/shared";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from "react-native";
 import { WebView, type WebViewMessageEvent } from "react-native-webview";
@@ -46,12 +47,35 @@ export function MapWebView({
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const html = useMemo(() => buildMapHtml(), []);
+  const [zoom, setZoom] = useState(Math.round(state.zoom));
+  const groups = useMemo(() => clusterPoints(state.markers ?? [], zoom), [state.markers, zoom]);
 
-  // Envia o estado sempre que mudar (e quando o mapa terminar de carregar).
+  // Câmera e raio: enviados só quando o estado pedido muda.
   useEffect(() => {
     if (!ready) return;
-    ref.current?.injectJavaScript(`window.__update(${JSON.stringify(state)}); true;`);
+    const { markers: _markers, ...camera } = state;
+    ref.current?.injectJavaScript(`window.__update(${JSON.stringify(camera)}); true;`);
   }, [ready, state]);
+
+  // Marcadores agrupados conforme o zoom atual do mapa.
+  useEffect(() => {
+    if (!ready) return;
+    const list = groups.map((g) =>
+      g.kind === "cluster"
+        ? { id: g.id, latitude: g.latitude, longitude: g.longitude, count: g.count }
+        : g.item,
+    );
+    ref.current?.injectJavaScript(`window.__markers(${JSON.stringify(list)}); true;`);
+  }, [ready, groups]);
+
+  function pressMarker(id: string) {
+    const group = groups.find((g) => g.kind === "cluster" && g.id === id);
+    if (group?.kind === "cluster") {
+      ref.current?.injectJavaScript(
+        `window.__zoomTo(${group.longitude}, ${group.latitude}, ${group.expansionZoom}); true;`,
+      );
+    } else if (!id.startsWith(CLUSTER_ID_PREFIX)) onMarkerPress?.(id);
+  }
 
   function onMessage(event: WebViewMessageEvent) {
     let msg: { type?: string; id?: string; latitude?: number; longitude?: number; zoom?: number };
@@ -62,12 +86,13 @@ export function MapWebView({
     }
     if (msg.type === "ready") setReady(true);
     else if (msg.type === "error") setFailed(true);
-    else if (msg.type === "marker" && typeof msg.id === "string") onMarkerPress?.(msg.id);
+    else if (msg.type === "marker" && typeof msg.id === "string") pressMarker(msg.id);
     else if (
       msg.type === "moveend" &&
       typeof msg.latitude === "number" &&
       typeof msg.longitude === "number"
     ) {
+      if (typeof msg.zoom === "number") setZoom(Math.round(msg.zoom));
       onMoveEnd?.({ latitude: msg.latitude, longitude: msg.longitude, zoom: msg.zoom ?? 10 });
     }
   }

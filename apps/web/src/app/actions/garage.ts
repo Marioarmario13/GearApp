@@ -8,12 +8,14 @@ import {
   getVehicle,
   updateVehicle,
   uploadVehiclePhoto,
+  validatePhoto,
   vehicleInputSchema,
 } from "@gearhead/shared";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { fieldErrorsFrom, formValues, type FormState } from "@/lib/forms";
+import { InvalidImageError, sanitizePhoto } from "@/lib/images";
 import { createClient } from "@/lib/supabase/server";
 
 // Toda action revalida a sessão; a autorização efetiva é do banco (RLS/Storage).
@@ -76,19 +78,18 @@ export async function uploadPhotoAction(
   const user = await requireUser();
   const file = formData.get("photo");
   if (!(file instanceof File) || file.size === 0) return { error: "Selecione uma foto." };
+  const problem = validatePhoto(file);
+  if (problem) return { error: problem };
 
   const supabase = await createClient();
   try {
     const vehicle = await getVehicle(supabase, vehicleId);
     if (!vehicle || vehicle.owner_id !== user.id) return { error: "Veículo não encontrado." };
-    await uploadVehiclePhoto(supabase, {
-      ownerId: user.id,
-      vehicle,
-      body: file,
-      contentType: file.type,
-    });
+    // Remove EXIF/GPS e limita o tamanho antes de gravar (fotos podem ficar públicas).
+    const clean = await sanitizePhoto(await file.arrayBuffer(), file.type);
+    await uploadVehiclePhoto(supabase, { ownerId: user.id, vehicle, ...clean });
   } catch (e) {
-    return { error: dataErrorMessage(e) };
+    return { error: e instanceof InvalidImageError ? e.message : dataErrorMessage(e) };
   }
   revalidatePath(`/garagem/${vehicleId}`);
   revalidatePath("/garagem");

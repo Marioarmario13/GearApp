@@ -4,7 +4,7 @@ Estado em **2026-10-20**. Legenda: ✅ feito · ⬜ pendente · ⚖️ jurídico
 
 ## Qualidade e segurança (feito)
 
-- ✅ Regressão completa: format, lint, typecheck, testes unitários (shared, web, mobile), 267 testes pgTAP de banco (RLS, grants, constraints, abuso) e testes de integração contra API/Storage reais — também no CI.
+- ✅ Regressão completa: format, lint, typecheck, testes unitários (shared, web, mobile), 284 testes pgTAP de banco (RLS, grants, constraints, abuso) e testes de integração contra API/Storage reais — também no CI.
 - ✅ RLS em todas as tabelas; nenhuma tabela nova exposta sem grant explícito.
 - ✅ Bloqueios aplicados no banco; moderação auditada.
 - ✅ Localização: desligada por padrão, efêmera, sem histórico, só para amigos escolhidos.
@@ -19,9 +19,9 @@ Estado em **2026-10-20**. Legenda: ✅ feito · ⬜ pendente · ⚖️ jurídico
 - ⬜ Notificações (pedidos de amizade, lembretes de evento, cupom vencendo) — 💰 provedor de push/e-mail.
 - ⬜ Recuperação de senha pela interface (fluxo do Supabase Auth + e-mail) — 💰 SMTP.
 - ✅ Busca de pessoas por nome ou @usuário (site em `/amigos`, app na tela de amigos; respeita bloqueios, 3–30 caracteres, até 20 resultados).
-- ⬜ Agrupamento de marcadores no mapa quando houver muitos parceiros.
-- ⬜ Remover metadados EXIF de fotos enviadas pelo site.
-- ⬜ Limpeza agendada (pg_cron) e rotina de arquivos órfãos (ver `OPERATIONS.md`).
+- ✅ Agrupamento de marcadores no mapa (site e app; tocar no grupo aproxima).
+- ✅ Fotos enviadas pelo site são reprocessadas no servidor (sem EXIF/GPS, lado maior ≤1600 px).
+- ✅ Limpeza de localizações agendada (pg_cron, 10 min) e listagem de arquivos órfãos (`private.orphan_storage_objects()`). ⬜ Remoção dos órfãos segue manual (ver `OPERATIONS.md`).
 - ⬜ Avaliar migração do mapa do app para SDK nativo (exige development build).
 - ⬜ Vulnerabilidades moderadas/altas transitivas no ferramental Expo/React Native (sem críticas; Next.js sem achados) — acompanhar atualizações do SDK.
 

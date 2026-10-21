@@ -78,18 +78,22 @@
 - Cabeçalhos HTTP: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy` (geolocalização só do próprio site; câmera/microfone/pagamento desligados) e CSP `frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'`.
 - Varredura de segredos no repositório e auditoria de dependências (sem críticas; achados transitivos no ferramental Expo/RN).
 
+## Controles implementados (pós-roadmap)
+
+- Fotos do site reprocessadas no servidor (`sharp`): aplica a rotação e regrava **sem EXIF/GPS/XMP**, lado maior ≤1600 px; arquivo inválido é recusado. O app já convertia no aparelho.
+- Busca de pessoas (`search_profiles`): só autenticados, RLS/bloqueios valem, termo de 3–30 caracteres, até 20 resultados, curingas tratados como texto (contra raspagem e enumeração ampla).
+- `pg_cron`: limpeza de localizações expiradas a cada 10 min, independente de uso.
+
 ### Pendências conhecidas
 
 - Confirmação de e-mail está desligada **apenas no ambiente local** (`enable_confirmations = false`); ligar em qualquer ambiente hospedado.
 - Leitura de perfis está aberta a qualquer autenticado; revisar com bloqueios (Etapa 7) e privacidade de perfil.
 - Rate limiting e CAPTCHA de cadastro a definir antes do piloto (Etapa 9).
-- Metadados EXIF (inclusive GPS) de fotos enviadas pelo **web** não são removidos; o mobile reprocessa a imagem. Remover EXIF no servidor antes do piloto.
-- Arquivos órfãos no Storage (falha ao remover depois de apagar a linha) — limpeza periódica na Etapa 9.
+- Arquivos órfãos no Storage: listados por `private.orphan_storage_objects()`; remoção manual pela API do Storage (rotina mensal).
 - **[JURÍDICO]** Retenção de documentos de parceiros (CNPJ/MEI podem conter dados pessoais de MEI): definir prazo e base legal; hoje, ao excluir o parceiro, os arquivos são apagados e a auditoria permanece.
 - Mapas: a instância pública da OpenFreeMap não tem SLA; seguir o plano de saída de `docs/MAPS.md` se necessário. O app baixa o MapLibre do unpkg (SRI protege a integridade; disponibilidade depende do CDN).
 - Suspensão/banimento de contas exige ação de servidor com chave de serviço (Supabase Auth admin) — planejar com operação segura na Etapa 9.
 - **[JURÍDICO]** Localização é dado pessoal sensível no contexto de segurança: revisar base legal (consentimento), textos de consentimento e retenção com profissional antes do piloto.
-- Agendar a limpeza de localizações expiradas em produção (hoje acontece a cada acesso às RPCs).
 - Telefone/e-mail de parceiros são públicos por escolha do dono; avaliar proteção contra raspagem (rate limit) antes do piloto.
 
 ## Localização (Etapas 5 e 8)

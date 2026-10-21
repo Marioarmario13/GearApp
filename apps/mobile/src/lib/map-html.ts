@@ -6,8 +6,9 @@ import { DEFAULT_MAP_STYLE_URL } from "@gearhead/shared";
  * com hash de integridade (SRI). A atribuição OpenFreeMap/OpenStreetMap é obrigatória
  * e fica visível pelo controle padrão — não remover.
  *
- * Ponte: o app envia o estado com `window.__update(estado)`; a página responde com
- * mensagens { type: "ready" | "moveend" | "marker" } via ReactNativeWebView.postMessage.
+ * Ponte: o app envia câmera/raio com `window.__update(estado)`, marcadores (já agrupados)
+ * com `window.__markers(lista)` e aproxima com `window.__zoomTo(lng, lat, zoom)`; a página
+ * responde com { type: "ready" | "moveend" | "marker" } via ReactNativeWebView.postMessage.
  */
 const MAPLIBRE_VERSION = "5.24.0";
 const MAPLIBRE_JS_SRI = "sha384-5+cfbwT0iiub6VsQAdn6yz16nr6sDiQoHx6tm4O8OVYXHYOxcffFmCJBL0dgdvGp";
@@ -45,6 +46,7 @@ export function buildMapHtml(styleUrl: string = MAP_STYLE_URL): string {
   var markers = [];
   var loaded = false;
   var pending = null;
+  var pendingMarkers = null;
 
   function circle(lat, lng, km) {
     var pts = [], dLat = km / 110.574, dLng = km / (111.32 * Math.cos(lat * Math.PI / 180));
@@ -55,12 +57,6 @@ export function buildMapHtml(styleUrl: string = MAP_STYLE_URL): string {
   function apply(state) {
     if (!loaded) { pending = state; return; }
     if (state.center) map.jumpTo({ center: [state.center.longitude, state.center.latitude], zoom: state.zoom || map.getZoom() });
-    markers.forEach(function (m) { m.remove(); });
-    markers = (state.markers || []).map(function (m) {
-      var el = new maplibregl.Marker({ color: m.highlighted ? "#c2410c" : "#fb923c" }).setLngLat([m.longitude, m.latitude]).addTo(map);
-      el.getElement().addEventListener("click", function (ev) { ev.stopPropagation(); send({ type: "marker", id: m.id }); });
-      return el;
-    });
     var data = state.radius ? circle(state.radius.latitude, state.radius.longitude, state.radius.km) : { type: "FeatureCollection", features: [] };
     var src = map.getSource("radius");
     if (src) { src.setData(data); }
@@ -71,8 +67,36 @@ export function buildMapHtml(styleUrl: string = MAP_STYLE_URL): string {
     }
   }
 
+  // Marcadores já agrupados pelo app ({ count } = grupo). Não mexe na câmera.
+  function setMarkers(list) {
+    if (!loaded) { pendingMarkers = list; return; }
+    markers.forEach(function (m) { m.remove(); });
+    markers = list.map(function (m) {
+      var marker;
+      if (m.count) {
+        var el = document.createElement("div");
+        var size = m.count < 10 ? 34 : m.count < 25 ? 40 : 46;
+        el.textContent = String(m.count);
+        el.style.cssText = "width:" + size + "px;height:" + size + "px;border-radius:50%;background:#c2410c;color:#fff;font:600 14px sans-serif;display:flex;align-items:center;justify-content:center;border:3px solid rgba(255,255,255,.85);box-shadow:0 1px 4px rgba(0,0,0,.35)";
+        marker = new maplibregl.Marker({ element: el });
+      } else {
+        marker = new maplibregl.Marker({ color: m.highlighted ? "#c2410c" : "#fb923c" });
+      }
+      marker.setLngLat([m.longitude, m.latitude]).addTo(map);
+      marker.getElement().addEventListener("click", function (ev) { ev.stopPropagation(); send({ type: "marker", id: m.id }); });
+      return marker;
+    });
+  }
+
   window.__update = apply;
-  map.on("load", function () { loaded = true; if (pending) { apply(pending); pending = null; } send({ type: "ready" }); });
+  window.__markers = setMarkers;
+  window.__zoomTo = function (lng, lat, zoom) { map.easeTo({ center: [lng, lat], zoom: zoom }); };
+  map.on("load", function () {
+    loaded = true;
+    if (pending) { apply(pending); pending = null; }
+    if (pendingMarkers) { setMarkers(pendingMarkers); pendingMarkers = null; }
+    send({ type: "ready" });
+  });
   map.on("moveend", function () { var c = map.getCenter(); send({ type: "moveend", latitude: c.lat, longitude: c.lng, zoom: map.getZoom() }); });
   map.on("error", function () { send({ type: "tile-error" }); });
 })();

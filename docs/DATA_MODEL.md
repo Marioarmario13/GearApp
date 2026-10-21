@@ -119,3 +119,11 @@ Grants: público lê colunas sem `review_note`/`reviewed_by`; dono insere/atuali
 **`public.ephemeral_presence`** (usuário): célula `cell_lat`/`cell_lng` de 0,05°, `expires_at` até 2 h.
 
 Nenhuma das três tem grant para clientes. **RPCs**: `start_location_session`, `update_session_location` (ignora envios com menos de 30 s), `stop_location_session`, `my_location_session`, `shared_locations_for_me` (coordenadas exatas só para destinatários de sessão ativa, amigos e sem bloqueio), `set_presence`, `clear_presence`, `nearby_friends` (faixas: até 5 km, 5 a 20 km, 20 a 50 km). Helpers: `private.are_friends`, `private.coarse`, `private.purge_expired_locations`.
+
+### Busca de pessoas — `supabase/migrations/20261027000100_people_search.sql`
+
+Índices trigram (`pg_trgm`) em `profiles.username` e `lower(display_name)`. **RPC** `search_profiles(p_query)` (security invoker: RLS e bloqueios valem; 3–30 caracteres; até 20 resultados; exclui o próprio usuário e perfis sem username).
+
+### Limpezas agendadas — `supabase/migrations/20261028000100_scheduled_cleanup.sql`
+
+`pg_cron`: `purge-expired-locations` (a cada 10 min) e `purge-cron-history` (diário, mantém 7 dias). `private.orphan_storage_objects()` lista arquivos de `vehicle-photos`/`business-documents` sem linha correspondente (mais de 1 dia); sem acesso para clientes.

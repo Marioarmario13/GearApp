@@ -16,11 +16,13 @@ Rotinas para o piloto. Responsável operacional: **[definir]**.
 
 ## Limpezas
 
-| O quê                             | Como                                                                                           | Frequência          |
-| --------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------- |
-| Posições de localização expiradas | `private.purge_expired_locations()` (já roda a cada acesso; agendar `pg_cron`)                 | A cada 10 min       |
-| Arquivos órfãos no Storage        | Listar objetos sem linha correspondente (`vehicle_photos`/`credentials`) e remover com cuidado | Mensal              |
-| Contas excluídas                  | Automático (cascata); confirmar ausência de arquivos remanescentes                             | Mensal (amostragem) |
+| O quê                             | Como                                                                                                    | Frequência          |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------- |
+| Posições de localização expiradas | `private.purge_expired_locations()` — agendado no `pg_cron` (`purge-expired-locations`) e a cada acesso | A cada 10 min       |
+| Arquivos órfãos no Storage        | `select * from private.orphan_storage_objects();` no editor SQL; remover pela API/painel do Storage     | Mensal              |
+| Contas excluídas                  | Automático (cascata); confirmar ausência de arquivos remanescentes                                      | Mensal (amostragem) |
+
+Conferir os jobs: `select jobname, schedule, active from cron.job;` e falhas recentes em `cron.job_run_details` (histórico podado após 7 dias).
 
 ## Backup e restauração
 

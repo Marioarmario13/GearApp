@@ -138,3 +138,10 @@ Presença ──► set_presence() (célula ~5,5 km) ──► nearby_friends() 
 - `packages/shared/src/privacy.ts` + RPCs `export_my_data` / `delete_my_account`; web: `/conta` (seção Privacidade) e route handler `/conta/dados`.
 - Cabeçalhos de segurança em `apps/web/next.config.ts`.
 - Documentos operacionais: `PRIVACY.md`, `DEPLOYMENT.md`, `OPERATIONS.md`, `PILOT_CHECKLIST.md`.
+
+## Pós-roadmap
+
+- Busca de pessoas: RPC `search_profiles` → `searchProfiles()` (shared) → `/amigos` (site) e `FriendsScreen` (app).
+- Imagens do site: `apps/web/src/lib/images.ts` (`sharp`) reprocessa antes do Storage.
+- Mapas: `packages/shared/src/cluster.ts` (agrupamento puro, usado pelo `MapView` e pelo `MapWebView`).
+- Agendamentos: `pg_cron` (limpeza de localizações).

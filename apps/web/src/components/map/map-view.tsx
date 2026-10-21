@@ -1,6 +1,6 @@
 "use client";
 
-import { DEFAULT_MAP_STYLE_URL } from "@gearhead/shared";
+import { clusterPoints, DEFAULT_MAP_STYLE_URL } from "@gearhead/shared";
 import {
   LngLatBounds,
   Map as MapLibreMap,
@@ -12,7 +12,7 @@ import {
   type MapMouseEvent,
 } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 /** Estilo de mapa (OpenFreeMap por padrão; trocar de provedor = trocar a URL). Ver docs/MAPS.md. */
 const STYLE_URL = process.env.NEXT_PUBLIC_MAP_STYLE_URL || DEFAULT_MAP_STYLE_URL;
@@ -58,6 +58,27 @@ function circlePolygon(lat: number, lng: number, km: number): GeoJSON.Feature<Ge
 
 const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
+/** Círculo com a quantidade de parceiros agrupados (clicar aproxima o mapa). */
+function clusterElement(count: number): HTMLButtonElement {
+  const el = document.createElement("button");
+  el.type = "button";
+  el.textContent = String(count);
+  el.setAttribute("aria-label", `${count} locais próximos — aproximar`);
+  const size = count < 10 ? 34 : count < 25 ? 40 : 46;
+  Object.assign(el.style, {
+    width: `${size}px`,
+    height: `${size}px`,
+    borderRadius: "9999px",
+    background: "#c2410c",
+    color: "#fff",
+    font: "600 14px system-ui, sans-serif",
+    border: "3px solid rgba(255,255,255,0.85)",
+    boxShadow: "0 1px 4px rgba(0,0,0,0.35)",
+    cursor: "pointer",
+  });
+  return el;
+}
+
 /**
  * Mapa MapLibre GL JS controlado por props. A atribuição (OpenFreeMap/OpenStreetMap)
  * é obrigatória e fica visível pelo AttributionControl padrão — não remover.
@@ -76,6 +97,8 @@ export function MapView({
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const markersRef = useRef<Marker[]>([]);
+  const [zoomLevel, setZoomLevel] = useState(Math.round(zoom));
+  const groups = useMemo(() => clusterPoints(markers, zoomLevel), [markers, zoomLevel]);
   const handlersRef = useRef({ onMoveEnd, onMapClick });
   useEffect(() => {
     handlersRef.current = { onMoveEnd, onMapClick };
@@ -92,6 +115,7 @@ export function MapView({
       cooperativeGestures: false,
     });
     map.addControl(new NavigationControl({ showCompass: false }), "top-right");
+    map.on("zoomend", () => setZoomLevel(Math.round(map.getZoom())));
     map.on("moveend", () => {
       const c = map.getCenter();
       handlersRef.current.onMoveEnd?.({ latitude: c.lat, longitude: c.lng, zoom: map.getZoom() });
@@ -113,12 +137,21 @@ export function MapView({
     mapRef.current?.easeTo({ center: [center.longitude, center.latitude], zoom });
   }, [center.latitude, center.longitude, zoom]);
 
-  // Marcadores.
+  // Marcadores (agrupados conforme o zoom).
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     for (const m of markersRef.current) m.remove();
-    markersRef.current = markers.map((m) => {
+    markersRef.current = groups.map((g) => {
+      if (g.kind === "cluster") {
+        const el = clusterElement(g.count);
+        el.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          map.easeTo({ center: [g.longitude, g.latitude], zoom: g.expansionZoom });
+        });
+        return new Marker({ element: el }).setLngLat([g.longitude, g.latitude]).addTo(map);
+      }
+      const m = g.item;
       const marker = new Marker({
         color: m.highlighted ? "#c2410c" : "#fb923c",
       }).setLngLat([m.longitude, m.latitude]);
@@ -130,6 +163,12 @@ export function MapView({
       }
       return marker.addTo(map);
     });
+  }, [groups]);
+
+  // Enquadra todos os marcadores quando a lista muda.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
     if (fitToMarkers && markers.length > 0) {
       const bounds = new LngLatBounds();
       for (const m of markers) bounds.extend([m.longitude, m.latitude]);
