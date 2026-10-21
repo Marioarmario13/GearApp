@@ -3,6 +3,43 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      account_suspensions: {
+        Row: {
+          reason: string;
+          suspended_at: string;
+          suspended_by: string | null;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          reason: string;
+          suspended_at?: string;
+          suspended_by?: string | null;
+          user_id: string;
+        };
+        Update: {
+          reason?: string;
+          suspended_at?: string;
+          suspended_by?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "account_suspensions_suspended_by_fkey";
+            columns: ["suspended_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "account_suspensions_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       audit_logs: {
         Row: {
           action: string;
@@ -909,6 +946,19 @@ export type Database = {
           target_type: Database["public"]["Enums"]["report_target"];
         }[];
       };
+      admin_list_suspensions: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          display_name: string;
+          reason: string;
+          suspended_at: string;
+          suspended_by_username: string;
+          user_id: string;
+          username: string;
+        }[];
+      };
+      admin_suspend_user: { Args: { p_reason: string; p_user_id: string }; Returns: undefined };
+      admin_unsuspend_user: { Args: { p_note: string; p_user_id: string }; Returns: undefined };
       block_user: { Args: { p_user_id: string }; Returns: undefined };
       cancel_coupon: { Args: { p_coupon_id: string }; Returns: undefined };
       cancel_event: { Args: { p_event_id: string; p_note?: string }; Returns: undefined };

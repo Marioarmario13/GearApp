@@ -1,6 +1,8 @@
 "use server";
 
 import {
+  adminSuspendUser,
+  adminUnsuspendUser,
   blockUser,
   dataErrorMessage,
   moderateHideVehicle,
@@ -116,4 +118,34 @@ export async function hideVehicleAction(
   }
   revalidatePath("/admin/denuncias");
   return { success: "Veículo ocultado (agora é privado)." };
+}
+
+export async function suspendUserAction(
+  userId: string,
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireAdmin();
+  try {
+    await adminSuspendUser(await createClient(), userId, String(formData.get("note") ?? ""));
+  } catch (e) {
+    return { error: dataErrorMessage(e) };
+  }
+  revalidatePath("/admin/usuarios");
+  return { success: "Conta suspensa. As sessões foram encerradas." };
+}
+
+export async function unsuspendUserAction(
+  userId: string,
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireAdmin();
+  try {
+    await adminUnsuspendUser(await createClient(), userId, String(formData.get("note") ?? ""));
+  } catch (e) {
+    return { error: dataErrorMessage(e) };
+  }
+  revalidatePath("/admin/usuarios");
+  return { success: "Conta reativada." };
 }

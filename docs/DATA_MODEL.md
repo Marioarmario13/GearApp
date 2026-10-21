@@ -127,3 +127,7 @@ Nenhuma das três tem grant para clientes. **RPCs**: `start_location_session`, `
 ### Limpezas agendadas — `supabase/migrations/20261028000100_scheduled_cleanup.sql`
 
 `pg_cron`: `purge-expired-locations` (a cada 10 min) e `purge-cron-history` (diário, mantém 7 dias). `private.orphan_storage_objects()` lista arquivos de `vehicle-photos`/`business-documents` sem linha correspondente (mais de 1 dia); sem acesso para clientes.
+
+### Suspensão de contas — `supabase/migrations/20261029000100_account_suspension.sql`
+
+**`public.account_suspensions`** (`user_id` PK → `profiles` com cascata, `reason` 5–500, `suspended_by`, `suspended_at`): sem grants nem policies. **RPCs** (admin, auditadas): `admin_suspend_user` (encerra `auth.sessions`, revoga localização e presença), `admin_unsuspend_user`, `admin_list_suspensions`. Helper `private.is_suspended(uuid)`. Schema `hooks`: `check_request()` (pre-request do PostgREST) e `custom_access_token(event)` (hook do Auth). Policies restritivas `no_uploads_when_suspended`/`no_updates_when_suspended` em `storage.objects`.

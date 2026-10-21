@@ -20,18 +20,13 @@
    - senha mínima 8 com letras e números (igual ao `config.toml`);
    - configurar SMTP próprio para e-mails transacionais (o envio padrão tem limites baixos).
 6. Habilitar proteção contra abuso no cadastro (CAPTCHA do Supabase Auth) e revisar rate limits.
-7. Agendar a limpeza de localizações (extensão `pg_cron`, pelo SQL Editor):
+7. Limpeza de localizações: a migração `scheduled_cleanup` já ativa o `pg_cron` e agenda os jobs. Conferir com `select jobname, schedule from cron.job;`.
+8. **Suspensão de contas**: em Authentication → Hooks, ativar **Customize Access Token (JWT) Claims** apontando para a função Postgres `hooks.custom_access_token` (o `config.toml` só vale localmente). Conferir que o pre-request da API ficou ativo: `select rolconfig from pg_roles where rolname = 'authenticator';` deve listar `pgrst.db_pre_request=hooks.check_request`. Sem o hook, o suspenso ainda faria login (embora a API recusasse os dados).
 
-   ```sql
-   create extension if not exists pg_cron;
-   select cron.schedule('gearhead-purge-locations', '*/10 * * * *',
-     $$ select private.purge_expired_locations(); $$);
-   ```
-
-8. Criar o primeiro administrador: após o cadastro normal, no SQL Editor:
+9. Criar o primeiro administrador: após o cadastro normal, no SQL Editor:
    `update public.profiles set role = 'admin' where id = '<uuid do usuário>';`
-9. Rodar o **Security Advisor** e o **Performance Advisor** do painel e tratar alertas.
-10. Confirmar backups do plano (ver [`OPERATIONS.md`](./OPERATIONS.md)).
+10. Rodar o **Security Advisor** e o **Performance Advisor** do painel e tratar alertas.
+11. Confirmar backups do plano (ver [`OPERATIONS.md`](./OPERATIONS.md)).
 
 ## 3. Site (Next.js)
 

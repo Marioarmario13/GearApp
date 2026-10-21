@@ -25,7 +25,7 @@
     "db:status": "supabase status",
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
-    "db:lint": "supabase db lint --schema public,private --level warning --fail-on warning",
+    "db:lint": "supabase db lint --schema public,private,hooks --level warning --fail-on warning",
     "db:new": "supabase migration new",
     "db:types": "supabase gen types typescript --local --schema public > packages/shared/src/database.types.ts && prettier --write packages/shared/src/database.types.ts",
     "test:integration": "node scripts/with-local-supabase.mjs npm run test -w @gearhead/shared -- --no-file-parallelism"

@@ -12,6 +12,9 @@ const query = {
 export const mockSupabase = {
   auth: {
     getSession: jest.fn(),
+    getUser: jest.fn((): Promise<{ data: { user: unknown }; error: unknown }> =>
+      Promise.resolve({ data: { user: null }, error: null }),
+    ),
     onAuthStateChange: jest.fn(() => ({ data: { subscription: { unsubscribe: jest.fn() } } })),
     signInWithPassword: jest.fn(),
     signUp: jest.fn(),

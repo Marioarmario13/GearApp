@@ -13,4 +13,5 @@ export * from "./privacy";
 export * from "./profile";
 export * from "./radar";
 export * from "./social-gps";
+export * from "./suspension";
 export * from "./vehicle";

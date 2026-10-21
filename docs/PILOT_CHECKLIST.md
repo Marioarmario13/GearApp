@@ -4,7 +4,7 @@ Estado em **2026-10-20**. Legenda: ✅ feito · ⬜ pendente · ⚖️ jurídico
 
 ## Qualidade e segurança (feito)
 
-- ✅ Regressão completa: format, lint, typecheck, testes unitários (shared, web, mobile), 284 testes pgTAP de banco (RLS, grants, constraints, abuso) e testes de integração contra API/Storage reais — também no CI.
+- ✅ Regressão completa: format, lint, typecheck, testes unitários (shared, web, mobile), 306 testes pgTAP de banco (RLS, grants, constraints, abuso) e testes de integração contra API/Storage reais — também no CI.
 - ✅ RLS em todas as tabelas; nenhuma tabela nova exposta sem grant explícito.
 - ✅ Bloqueios aplicados no banco; moderação auditada.
 - ✅ Localização: desligada por padrão, efêmera, sem histórico, só para amigos escolhidos.
@@ -15,7 +15,7 @@ Estado em **2026-10-20**. Legenda: ✅ feito · ⬜ pendente · ⚖️ jurídico
 ## Pendências técnicas
 
 - ⬜ **Teste em aparelho real** (Android e iOS) com Expo Go: login, garagem com fotos da galeria, radar/mapa na WebView, eventos, cupons, amigos e localização. Pendente desde a Etapa 3, combinado para o fim do projeto.
-- ⬜ Suspensão de conta de usuário pela interface admin (hoje pelo painel do Supabase).
+- ✅ Suspensão e reativação de contas pela interface admin (`/admin/usuarios`), sem chave de serviço: hook do Auth + pre-request da API + Storage; auditadas. Em produção, ativar o hook no painel (ver `DEPLOYMENT.md`).
 - ⬜ Notificações (pedidos de amizade, lembretes de evento, cupom vencendo) — 💰 provedor de push/e-mail.
 - ⬜ Recuperação de senha pela interface (fluxo do Supabase Auth + e-mail) — 💰 SMTP.
 - ✅ Busca de pessoas por nome ou @usuário (site em `/amigos`, app na tela de amigos; respeita bloqueios, 3–30 caracteres, até 20 resultados).

@@ -7,7 +7,7 @@ import {
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { hideVehicleAction, resolveReportAction } from "@/app/actions/community";
+import { hideVehicleAction, resolveReportAction, suspendUserAction } from "@/app/actions/community";
 import { requireAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { ReviewForm, type Decision } from "../review-form";
@@ -22,6 +22,9 @@ const DECISIONS: Decision[] = [
     pendingLabel: "Salvando…",
     variant: "secondary",
   },
+];
+const SUSPEND: Decision[] = [
+  { value: "suspend", label: "Suspender conta", pendingLabel: "Suspendendo…", variant: "danger" },
 ];
 const HIDE: Decision[] = [
   { value: "hide", label: "Ocultar veículo", pendingLabel: "Ocultando…", variant: "danger" },
@@ -81,6 +84,13 @@ async function Queue() {
                 action={hideVehicleAction.bind(null, r.target_id)}
                 decisions={HIDE}
                 noteLabel="Motivo da ocultação (auditado)"
+              />
+            )}
+            {r.target_type === "profile" && (
+              <ReviewForm
+                action={suspendUserAction.bind(null, r.target_id)}
+                decisions={SUSPEND}
+                noteLabel="Motivo da suspensão (auditado)"
               />
             )}
             <ReviewForm

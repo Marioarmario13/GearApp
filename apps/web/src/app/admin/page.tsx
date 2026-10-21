@@ -20,6 +20,12 @@ export default function AdminPage() {
           Denúncias
         </Link>
         <Link
+          href="/admin/usuarios"
+          className="rounded-lg border border-line px-3 py-1.5 font-medium"
+        >
+          Usuários
+        </Link>
+        <Link
           href="/admin/auditoria"
           className="rounded-lg border border-line px-3 py-1.5 font-medium"
         >

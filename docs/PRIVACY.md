@@ -16,6 +16,7 @@
 | **Localização compartilhada**          | `location_sessions` (só a última posição) | Encontro/comboio/segurança com amigos   | Só os amigos escolhidos, durante o prazo                    | Apagada ao encerrar/expirar (máx. 8 h)          |
 | Presença aproximada (célula ~5,5 km)   | `ephemeral_presence`                      | Descobrir amigos por perto              | Amigos (só faixa de distância)                              | Até 2 h                                         |
 | Posição para o radar                   | não armazenada                            | Buscar parceiros por perto              | Ninguém (arredondada ~1 km, só na consulta)                 | Não é guardada                                  |
+| Suspensão de conta (motivo, data)      | `account_suspensions`                     | Segurança e moderação                   | Admins                                                      | Até a reativação (histórico na auditoria)       |
 | Registros de auditoria                 | `audit_logs`                              | Responsabilização de ações de moderação | Admins                                                      | **[JURÍDICO]** definir prazo                    |
 
 ## Bases legais propostas **[JURÍDICO]**

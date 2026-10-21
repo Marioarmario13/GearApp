@@ -94,7 +94,20 @@ export interface PublicProfile {
  * Traduz mensagens de erro do Supabase Auth/PostgREST para pt-BR.
  * Recebe apenas código/mensagem — não depende do SDK.
  */
+/** Texto exato devolvido pelo banco e pelo hook do Auth para conta suspensa. */
+export const ACCOUNT_SUSPENDED_MESSAGE = "Sua conta está suspensa. Fale com a equipe Gearhead.";
+
+export function isAccountSuspendedError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    error.message === ACCOUNT_SUSPENDED_MESSAGE
+  );
+}
+
 export function authErrorMessage(error: { code?: string; message?: string }): string {
+  if (isAccountSuspendedError(error)) return ACCOUNT_SUSPENDED_MESSAGE;
   switch (error.code) {
     case "invalid_credentials":
       return "E-mail ou senha incorretos.";

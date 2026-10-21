@@ -42,4 +42,4 @@ Conferir os jobs: `select jobname, schedule, active from cron.job;` e falhas rec
 - Velocidade em via pública, racha ou direção perigosa: remover/ocultar e registrar motivo.
 - Exposição de dados pessoais (placas, endereços de terceiros): remover.
 - Parceiro com documento falso: suspender (`review_business` → `suspended`) e recusar o documento com motivo.
-- Suspensão de **conta de usuário** ainda não tem tela: exige operação no painel do Supabase Auth (banir usuário) — registrar manualmente o motivo.
+- Suspensão de **conta de usuário**: `/admin/usuarios` (busca, suspender e reativar, sempre com motivo auditado) ou direto da denúncia de perfil em `/admin/denuncias`. Suspender encerra as sessões e a localização, recusa novo login e bloqueia a API. Para suspender um admin, remover antes o papel (`set_user_role`). Pedidos de titular (LGPD) de conta suspensa chegam pelo canal do encarregado.

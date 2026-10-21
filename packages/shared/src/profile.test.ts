@@ -81,6 +81,11 @@ describe("authErrorMessage", () => {
     expect(authErrorMessage({ code: "23505" })).toBe("Este nome de usuário já está em uso.");
   });
 
+  it("repassa o aviso de conta suspensa (hook do Auth responde com código genérico)", () => {
+    const msg = "Sua conta está suspensa. Fale com a equipe Gearhead.";
+    expect(authErrorMessage({ code: "unknown", message: msg })).toBe(msg);
+  });
+
   it("usa mensagem genérica para códigos desconhecidos (não vaza detalhes internos)", () => {
     expect(authErrorMessage({ code: "xyz", message: "stack trace" })).toBe(
       "Não foi possível concluir a operação. Tente novamente.",

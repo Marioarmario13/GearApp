@@ -83,6 +83,7 @@
 - Fotos do site reprocessadas no servidor (`sharp`): aplica a rotação e regrava **sem EXIF/GPS/XMP**, lado maior ≤1600 px; arquivo inválido é recusado. O app já convertia no aparelho.
 - Busca de pessoas (`search_profiles`): só autenticados, RLS/bloqueios valem, termo de 3–30 caracteres, até 20 resultados, curingas tratados como texto (contra raspagem e enumeração ampla).
 - `pg_cron`: limpeza de localizações expiradas a cada 10 min, independente de uso.
+- **Suspensão de contas** sem `service_role`: tabela sem grants (`account_suspensions`), RPCs só de admin com motivo e auditoria; ao suspender, sessões do Auth e localização ativa são encerradas. Três barreiras: hook `custom_access_token` (recusa login/renovação), `pgrst.db_pre_request` → `hooks.check_request()` (recusa toda requisição da API, inclusive com token ainda válido) e policies restritivas de upload no Storage. Admin não suspende a si mesmo nem outro admin. Testado em pgTAP e contra a API real.
 
 ### Pendências conhecidas
 
@@ -92,7 +93,7 @@
 - Arquivos órfãos no Storage: listados por `private.orphan_storage_objects()`; remoção manual pela API do Storage (rotina mensal).
 - **[JURÍDICO]** Retenção de documentos de parceiros (CNPJ/MEI podem conter dados pessoais de MEI): definir prazo e base legal; hoje, ao excluir o parceiro, os arquivos são apagados e a auditoria permanece.
 - Mapas: a instância pública da OpenFreeMap não tem SLA; seguir o plano de saída de `docs/MAPS.md` se necessário. O app baixa o MapLibre do unpkg (SRI protege a integridade; disponibilidade depende do CDN).
-- Suspensão/banimento de contas exige ação de servidor com chave de serviço (Supabase Auth admin) — planejar com operação segura na Etapa 9.
+- Suspensão: o hook do Auth precisa ser ativado no painel em produção (o `config.toml` só vale localmente). Downloads de arquivos do Storage por URL assinada já emitida (≤10 min) não passam pelo pre-request.
 - **[JURÍDICO]** Localização é dado pessoal sensível no contexto de segurança: revisar base legal (consentimento), textos de consentimento e retenção com profissional antes do piloto.
 - Telefone/e-mail de parceiros são públicos por escolha do dono; avaliar proteção contra raspagem (rate limit) antes do piloto.
 
