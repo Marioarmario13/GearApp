@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react-native";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react-native";
 import { LocationScreen } from "./LocationScreen";
 
 jest.mock("@/lib/supabase", () => require("@/test-utils/supabase-mock").module);
@@ -53,12 +53,15 @@ test("inicia compartilhamento só com amigos escolhidos", async () => {
   await fireEvent.press(await screen.findByRole("checkbox", { name: "Bia" }));
   await fireEvent.press(screen.getByRole("radio", { name: "Comboio/passeio" }));
   await fireEvent.press(screen.getByRole("button", { name: "Iniciar compartilhamento" }));
-  expect(mock.startLocationSession).toHaveBeenCalledWith(expect.anything(), {
-    purpose: "convoy",
-    minutes: 60,
-    recipientIds: ["u2"],
-    note: null,
-  });
+  // Antes de iniciar, a tela pede a permissão de localização (assíncrono).
+  await waitFor(() =>
+    expect(mock.startLocationSession).toHaveBeenCalledWith(expect.anything(), {
+      purpose: "convoy",
+      minutes: 60,
+      recipientIds: ["u2"],
+      note: null,
+    }),
+  );
 });
 
 test("sessão ativa mostra destinatários e permite parar na hora", async () => {

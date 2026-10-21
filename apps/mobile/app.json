@@ -39,7 +39,9 @@
           "isIosBackgroundLocationEnabled": false,
           "isAndroidBackgroundLocationEnabled": false
         }
-      ]
+      ],
+      "expo-status-bar",
+      "expo-font"
     ],
     "scheme": "gearhead"
   }

@@ -60,4 +60,4 @@
 - Política de tiles OSM: <https://operations.osmfoundation.org/policies/tiles/>
 - Política do Nominatim: <https://operations.osmfoundation.org/policies/nominatim/>
 - MapLibre React Native no Expo: <https://maplibre.org/maplibre-react-native/docs/setup/expo>
-- `react-native-webview` no Expo SDK 58: <https://docs.expo.dev/versions/v58.0.0/sdk/webview/>
+- `react-native-webview` no Expo SDK 57: <https://docs.expo.dev/versions/v57.0.0/sdk/webview/>

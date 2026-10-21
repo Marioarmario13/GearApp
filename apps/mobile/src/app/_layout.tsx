@@ -23,9 +23,10 @@ function RootNavigator() {
   }
 
   // Guardas só controlam navegação; a proteção dos dados é a RLS do banco.
+  // Sem sessão, o router cai na única tela liberada ("entrar").
   return (
     <Stack screenOptions={screenOptions}>
-      <Stack.Protected guard={Boolean(session)} redirectTo="/entrar">
+      <Stack.Protected guard={Boolean(session)}>
         <Stack.Screen name="index" options={{ title: "Minha garagem" }} />
         <Stack.Screen name="conta" options={{ title: "Minha conta" }} />
         <Stack.Screen name="veiculo/novo" options={{ title: "Novo veículo" }} />

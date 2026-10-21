@@ -11,7 +11,7 @@ Plataforma Gearhead (Brasil): site + painel (Next.js) e app Android/iOS (Expo). 
 ## Estrutura
 
 - `apps/web` — `@gearhead/web`, Next.js 16 App Router, Tailwind 4, Vitest + Testing Library. Código em `src/`, alias `@/*`.
-- `apps/mobile` — `@gearhead/mobile`, Expo SDK 58, React Native 0.88, **Expo Router** (rotas em `src/app/`, telas em `src/screens/`, alias `@/*` → `src/`), Jest (`jest-expo`) + `@testing-library/react-native` 14.
+- `apps/mobile` — `@gearhead/mobile`, **Expo SDK 57**, React Native 0.86, **Expo Router** (rotas em `src/app/`, telas em `src/screens/`, alias `@/*` → `src/`), Jest 29 (`jest-expo`) + `@testing-library/react-native` 13 + `react-test-renderer` 19.2.3. SDK 57 porque o Expo Go da App Store ainda não suporta o 58 (iPhone do usuário). Subir para o 58 só quando o Expo Go das lojas for atualizado.
 - `packages/shared` — `@gearhead/shared`, Zod 4, regras puras, tipos gerados do banco (`database.types.ts`, via `npm run db:types` — nunca editar à mão) e camada de dados compartilhada (`data-core.ts` com erros/helpers, `garage-data.ts`, `partner-data.ts`, `radar.ts`, `events.ts`, `offers.ts`, `community.ts`, `social-gps.ts`, `privacy.ts`: funções que recebem o cliente Supabase do chamador). Consumido como fonte TS (sem build). Web usa `transpilePackages`.
 - `supabase/` — `config.toml`, `migrations/` (SQL versionado), `seed.sql` (fictício), `tests/database/*.test.sql` (pgTAP).
 - `docs/` — documentação permanente.
@@ -76,8 +76,10 @@ Dependências: `npm install <pkg> -w <workspace>`. No mobile, use `npx expo inst
 ## Versões novas — não confiar na memória
 
 - Next.js 16: ler `node_modules/next/dist/docs/` antes de usar APIs (ver `apps/web/AGENTS.md`). `next typegen` gera `LayoutProps`/`PageProps` (já incluído no `typecheck`).
-- Expo 58: consultar docs versionadas (ver `apps/mobile/AGENTS.md`).
-- `@testing-library/react-native` 14: `render` e `fireEvent` são async → sempre `await`.
+- Expo 57: consultar docs versionadas `https://docs.expo.dev/versions/v57.0.0/` (ver `apps/mobile/AGENTS.md`).
+- **Uma única versão do React no monorepo (19.2.3, exata em web, mobile e `react-test-renderer`)**: duas cópias quebram o app (o `react-native` fica na raiz). Conferir com `npx expo-doctor` em `apps/mobile` após mexer em dependências. RNTL 14 exige React 19.3 — não usar enquanto o mobile estiver no SDK 57.
+- `@testing-library/react-native` 13: `fireEvent` é síncrono e não espera handlers assíncronos → use `waitFor`/`findBy*` para efeitos (os `await render`/`await fireEvent` existentes são inofensivos).
+- Expo Router do SDK 57: `Stack.Protected` não tem `redirectTo` (cai na primeira tela liberada).
 - Testes do mobile: mockar `@/lib/supabase` com `src/test-utils/supabase-mock.ts`; `expo-router` e `@/auth/AuthProvider` são mockados por arquivo.
 - Dev server do Next pode ficar com o módulo de Server Actions desatualizado após adicionar exports num arquivo `"use server"` (`undefined.bind`): reiniciar o preview.
 - Next 16 mantém páginas anteriores ocultas no DOM (preservação de estado): em testes de navegador, filtre elementos visíveis.
